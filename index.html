@@ -143,9 +143,9 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 .set-inp:focus{border-color:var(--accent);}
 
 /* ── CHART ── */
-.chart-bars{display:flex;align-items:flex-end;gap:5px;height:130px;}
+.chart-bars{display:flex;align-items:flex-end;gap:5px;height:180px;}
 .cbar-g{flex:1;display:flex;gap:2px;align-items:flex-end;}
-.cbar{flex:1;border-radius:3px 3px 0 0;min-height:3px;transition:height .4s;}
+.cbar{flex:1;border-radius:3px 3px 0 0;min-height:6px;transition:height .4s;}
 .chart-xl{display:flex;gap:5px;margin-top:5px;}
 .cxl{flex:1;text-align:center;font-size:9px;color:var(--text3);}
 
@@ -682,8 +682,8 @@ async function renderMonth(y, m) {
       <div class="chart-bars">
         ${daily.map(({netto,exp})=>`
           <div class="cbar-g">
-            <div class="cbar" style="background:var(--green);height:${Math.round(netto/maxV*100)}%"></div>
-            <div class="cbar" style="background:var(--red);height:${Math.round(exp/maxV*100)}%"></div>
+            <div class="cbar" style="background:var(--green);height:${Math.max(6,Math.round(netto/maxV*170))}px"></div>
+            <div class="cbar" style="background:var(--red);height:${Math.max(exp>0?6:0,Math.round(exp/maxV*170))}px"></div>
           </div>`).join('')}
       </div>
       <div class="chart-xl">${daily.map(({d})=>`<div class="cxl">${d%5===0||d===1?d:''}</div>`).join('')}</div>
@@ -733,8 +733,8 @@ async function renderYear() {
       <div class="chart-bars">
         ${months.map(({totalNetto,totalExp})=>`
           <div class="cbar-g">
-            <div class="cbar" style="background:var(--green);height:${Math.round(totalNetto/maxV*100)}%"></div>
-            <div class="cbar" style="background:var(--red);height:${Math.round(totalExp/maxV*100)}%"></div>
+            <div class="cbar" style="background:var(--green);height:${Math.max(totalNetto>0?6:0,Math.round(totalNetto/maxV*170))}px"></div>
+            <div class="cbar" style="background:var(--red);height:${Math.max(totalExp>0?6:0,Math.round(totalExp/maxV*170))}px"></div>
           </div>`).join('')}
       </div>
       <div class="chart-xl">${MS.map(s=>`<div class="cxl">${s}</div>`).join('')}</div>
@@ -748,7 +748,7 @@ async function renderYear() {
         <div class="work-row" onclick="nav('month',document.querySelectorAll('.nb')[1]);renderMonth(${y},${m})" style="cursor:pointer">
           <span class="work-label">${MR[m]}</span>
           <span style="display:flex;gap:16px;font-size:13px">
-            <span class="Y">${N(totalBrutto)} ₽</span>
+            <span class="Y">${N(totalBrutto)} zł</span>
             <span class="G">${N(totalNetto)} zł</span>
             <span class="R">−${N(totalExp)} zł</span>
           </span>
