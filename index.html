@@ -311,7 +311,7 @@ const CATS = ['🍔 Еда','🚕 Такси','🏠 Жильё','💊 Здоро
 const HT = [{k:'h0',l:'Обычные',pct:0,color:'var(--blue)'},{k:'h20',l:'Ночные +20%',pct:20,color:'var(--accent2)'},{k:'h50',l:'Сверхур. +50%',pct:50,color:'var(--yellow)'},{k:'h100',l:'Праздн./100%',pct:100,color:'var(--orange)'}];
 
 const DEF_WS = {salary:7000, std_hours:160, ulga:true};
-const DEF_PS = {expense_plan:4303, invest_plan:1100, apt_plan:1500, cushion_plan:300};
+const DEF_PS = {expense_plan:4303, invest_plan:1100, apt_plan:1500, cushion_plan:300, usd_rate:3.85};
 const DEF_SV = {invest:18689, apt:0, cushion:5900};
 const DEF_DEBTS = [{name:'Отчим',total:12421,received:0},{name:'Кирилл',total:2765,received:0},{name:'Максим',total:889,received:0},{name:'Богдан',total:1050,received:0}];
 
@@ -796,7 +796,7 @@ async function renderAllTime() {
 async function renderGoals() {
   const sv=await getSV(), ps=await getPS(), ws=await getWS();
   const debts=await getDebts();
-  const USD=4.15, cT=Math.round(2000*USD);
+  const USD=ps.usd_rate||3.85, cT=Math.round(2000*USD);
   const cP=Math.min(100,Math.round(sv.cushion/cT*100));
   const aP=Math.min(100,Math.round(sv.apt/200000*100));
   const mC=ps.cushion_plan>0?Math.ceil((cT-sv.cushion)/ps.cushion_plan):'∞';
@@ -924,6 +924,7 @@ async function renderSettings() {
     {k:'invest_plan',  l:'📈 Инвестиции T212/мес',    s:''},
     {k:'apt_plan',     l:'🏠 Квартира/мес',            s:''},
     {k:'cushion_plan', l:'🛡 Пополнение подушки/мес', s:''},
+    {k:'usd_rate',     l:'💵 Курс USD → zł',           s:'сейчас ~3.85 zł за $1'},
   ].map(r=>`<div class="set-row">
     <div><div class="set-l">${r.l}</div>${r.s?`<div class="set-s">${r.s}</div>`:''}</div>
     <input type="number" class="set-inp" id="ps-${r.k}" value="${ps[r.k]||0}">
