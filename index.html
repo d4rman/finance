@@ -327,14 +327,15 @@ const N = (v,dec=0) => Number(v||0).toLocaleString('ru',{minimumFractionDigits:d
 
 // ── SALARY CALC ────────────────────────────────────────────────────
 function calcDay(dayData, ws) {
-  const rate = ws.salary / ws.std_hours; // base hourly brutto
+  const rate = ws.salary / ws.std_hours;
   const h0   = (dayData.h0  ||0) * rate;
   const h20  = (dayData.h20 ||0) * rate * 1.20;
   const h50  = (dayData.h50 ||0) * rate * 1.50;
   const h100 = (dayData.h100||0) * rate * 2.00;
   const bonus = dayData.bonus || 0;
   const brutto = h0 + h20 + h50 + h100 + bonus;
-  return {brutto, rate};
+  const manual_netto = dayData.manual_netto || 0; // чистый доход без пересчёта
+  return {brutto, rate, manual_netto};
 }
 
 function calcNetto(brutto, ws) {
@@ -359,8 +360,8 @@ function monthCalc(cache, ws, y, m) {
     h0+=(dd.h0||0); h20+=(dd.h20||0); h50+=(dd.h50||0); h100+=(dd.h100||0);
     (dd.expenses||[]).forEach(e => totalExp += e.amount);
   });
-  totalNetto = calcNetto(totalBrutto, ws);
-  return {totalBrutto, totalNetto, totalExp, totalHours, h0, h20, h50, h100};
+  totalNetto = calcNetto(totalBrutto, ws) + totalManual;
+  return {totalBrutto, totalNetto, totalManual, totalExp, totalHours, h0, h20, h50, h100};
 }
 
 // ── DB ─────────────────────────────────────────────────────────────
@@ -377,7 +378,7 @@ async function loadCache() {
   (data||[]).forEach(r => {
     cache[r.date] = {
       h0:r.h0||0, h20:r.h20||0, h50:r.h50||0, h100:r.h100||0,
-      bonus:r.bonus||0, expenses:r.expenses||[]
+      bonus:r.bonus||0, manual_netto:r.manual_netto||0, expenses:r.expenses||[]
     };
   });
 }
@@ -385,7 +386,7 @@ async function saveDay(dk, dd) {
   await sb.from('days').upsert({
     user_id:CU.id, date:dk,
     h0:dd.h0||0, h20:dd.h20||0, h50:dd.h50||0, h100:dd.h100||0,
-    bonus:dd.bonus||0, expenses:dd.expenses||[]
+    bonus:dd.bonus||0, manual_netto:dd.manual_netto||0, expenses:dd.expenses||[]
   },{onConflict:'user_id,date'});
   cache[dk] = dd;
 }
@@ -520,10 +521,17 @@ async function renderDP(y,m,d) {
           <input type="number" id="inp-${h.k}" class="inp" value="${dd[h.k]||''}" placeholder="0" min="0" max="24" step="0.5" oninput="previewDay('${k}')">
         </div>`).join('')}
     </div>
-    <div class="inp-group" style="margin-bottom:12px">
-      <div class="inp-label">💰 Премия / доп. начисление (brutto, zł)</div>
-      <input type="number" id="inp-bonus" class="inp" value="${dd.bonus||''}" placeholder="0" oninput="previewDay('${k}')">
+    <div class="grid2" style="margin-bottom:12px">
+      <div class="inp-group">
+        <div class="inp-label">💰 Премия брутто (zł)</div>
+        <input type="number" id="inp-bonus" class="inp" value="${dd.bonus||''}" placeholder="0" oninput="previewDay('${k}')">
+      </div>
+      <div class="inp-group">
+        <div class="inp-label" style="color:var(--green)">✅ Чистый доход нетто (zł)</div>
+        <input type="number" id="inp-manual" class="inp" value="${dd.manual_netto||''}" placeholder="например зарплата за январь">
+      </div>
     </div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:12px">↑ Чистый доход — вписывается как есть, без пересчёта ZUS/налогов</div>
     <div id="day-preview" style="margin-bottom:12px"></div>
     <button class="btn btn-full" onclick="saveWork('${k}')">💾 Сохранить рабочие часы</button>
 
@@ -557,11 +565,12 @@ function previewDay(k) {
 
 function readDayInputs() {
   return {
-    h0:   parseFloat(document.getElementById('inp-h0')?.value)||0,
-    h20:  parseFloat(document.getElementById('inp-h20')?.value)||0,
-    h50:  parseFloat(document.getElementById('inp-h50')?.value)||0,
-    h100: parseFloat(document.getElementById('inp-h100')?.value)||0,
-    bonus:parseFloat(document.getElementById('inp-bonus')?.value)||0,
+    h0:          parseFloat(document.getElementById('inp-h0')?.value)||0,
+    h20:         parseFloat(document.getElementById('inp-h20')?.value)||0,
+    h50:         parseFloat(document.getElementById('inp-h50')?.value)||0,
+    h100:        parseFloat(document.getElementById('inp-h100')?.value)||0,
+    bonus:       parseFloat(document.getElementById('inp-bonus')?.value)||0,
+    manual_netto:parseFloat(document.getElementById('inp-manual')?.value)||0,
   };
 }
 
