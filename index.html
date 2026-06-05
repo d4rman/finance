@@ -384,11 +384,15 @@ async function getDebts() {
 
 // ── AUTH ───────────────────────────────────────────────────────────
 window.onTgAuth = async function(u) {
-  const {data,error} = await sb.from('users')
-    .upsert({tg_id:u.id, first_name:u.first_name, username:u.username||''},{onConflict:'tg_id'})
+  // Try find existing user first
+  let {data: found} = await sb.from('users').select('*').eq('tg_id', u.id).maybeSingle();
+  if(found){ CU=found; localStorage.setItem('fin_user',JSON.stringify(CU)); showApp(); return; }
+  // Insert new user
+  const {data: inserted, error} = await sb.from('users')
+    .insert({tg_id:u.id, first_name:u.first_name, username:u.username||''})
     .select().single();
-  if(error){toast('Ошибка входа');return;}
-  CU = data;
+  if(error){ toast('Ошибка: '+error.message); console.error(error); return; }
+  CU = inserted;
   localStorage.setItem('fin_user', JSON.stringify(CU));
   showApp();
 };
