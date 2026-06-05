@@ -164,6 +164,9 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── TOAST ── */
+.month-tab{padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit;transition:.15s;white-space:nowrap;}
+.month-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.month-tab:hover:not(.active){background:var(--s3);color:var(--text);}
 .toast{position:fixed;bottom:20px;right:20px;background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:var(--rs);font-size:13px;transform:translateY(70px);opacity:0;transition:.25s;z-index:9999;max-width:260px;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 
@@ -194,6 +197,8 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
     <div class="nav-scroll">
       <button class="nb on"  onclick="nav('calendar',this)">📅 Календарь</button>
       <button class="nb"     onclick="nav('month',this)">📊 Месяц</button>
+      <button class="nb"     onclick="nav('year',this)">📈 Год</button>
+      <button class="nb"     onclick="nav('alltime',this)">🌍 Всё время</button>
       <button class="nb"     onclick="nav('goals',this)">🎯 Цели</button>
       <button class="nb"     onclick="nav('debts',this)">💸 Долги</button>
       <button class="nb"     onclick="nav('settings',this)">⚙️ Настройки</button>
@@ -231,6 +236,16 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
   <!-- ── MONTH ── -->
   <div id="page-month" class="page">
     <div id="month-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
+  </div>
+
+  <!-- ── YEAR ── -->
+  <div id="page-year" class="page">
+    <div id="year-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
+  </div>
+
+  <!-- ── ALLTIME ── -->
+  <div id="page-alltime" class="page">
+    <div id="alltime-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
   </div>
 
   <!-- ── GOALS ── -->
@@ -330,10 +345,14 @@ function calcNetto(brutto, ws) {
   return brutto - zus - zdrowo - podatek;
 }
 
-function monthCalc(cache, ws) {
+function monthCalc(cache, ws, y, m) {
   let totalBrutto = 0, totalNetto = 0, totalExp = 0;
   let h0=0,h20=0,h50=0,h100=0, totalHours=0;
-  Object.values(cache).forEach(dd => {
+  const filterKey = (y!==undefined && m!==undefined) ? `${y}-${String(m+1).padStart(2,'0')}` : null;
+  const entries = filterKey
+    ? Object.entries(cache).filter(([k])=>k.startsWith(filterKey)).map(([,v])=>v)
+    : Object.values(cache);
+  entries.forEach(dd => {
     const {brutto} = calcDay(dd, ws);
     totalBrutto += brutto;
     totalHours += (dd.h0||0)+(dd.h20||0)+(dd.h50||0)+(dd.h100||0);
@@ -423,6 +442,8 @@ function nav(pg, btn) {
   btn.classList.add('on');
   if(pg==='month') renderMonth();
   if(pg==='goals') renderGoals();
+  if(pg==='year') renderYear();
+  if(pg==='alltime') renderAllTime();
   if(pg==='debts') renderDebts();
   if(pg==='settings') renderSettings();
 }
@@ -582,28 +603,46 @@ async function delExp(k,idx) {
 }
 
 // ── MONTH ──────────────────────────────────────────────────────────
-async function renderMonth() {
-  document.getElementById('month-body').innerHTML=`<div class="spin-wrap"><div class="spinner"></div> Загрузка...</div>`;
-  const ws=await getWS(), ps=await getPS();
+let currentMonthY = null, currentMonthM = null;
+
+async function renderMonth(y, m) {
   const t=T();
-  const {totalBrutto,totalNetto,totalExp,totalHours,h0,h20,h50,h100}=monthCalc(cache,ws);
+  if(y===undefined){y=t.y;m=t.m;}
+  currentMonthY=y; currentMonthM=m;
+  document.getElementById('month-body').innerHTML=`<div class="spin-wrap"><div class="spinner"></div> Загрузка...</div>`;
+  const ym=`${y}-${String(m+1).padStart(2,'0')}`;
+  const ws=await getWS(ym), ps=await getPS();
+  const {totalBrutto,totalNetto,totalExp,totalHours,h0,h20,h50,h100}=monthCalc(cache,ws,y,m);
   const free=totalNetto-totalExp;
   const savePct=totalNetto>0?Math.round((ps.invest_plan+ps.apt_plan+ps.cushion_plan)/totalNetto*100):0;
-  const days=new Date(t.y,t.m+1,0).getDate();
+  const days=new Date(y,m+1,0).getDate();
   let daily=[];
   for(let d=1;d<=days;d++){
-    const k=DK(t.y,t.m,d),dd=cache[k]||{};
+    const k=DK(y,m,d),dd=cache[k]||{};
     const {brutto}=calcDay(dd,ws);
     const exp=(dd.expenses||[]).reduce((s,e)=>s+e.amount,0);
     daily.push({d,brutto,netto:calcNetto(brutto,ws),exp});
   }
   const maxV=Math.max(...daily.map(d=>Math.max(d.netto,d.exp)),1);
   const catTotals={};
-  Object.values(cache).forEach(dd=>(dd.expenses||[]).forEach(e=>{catTotals[e.cat]=(catTotals[e.cat]||0)+e.amount;}));
+  const mKey=`${y}-${String(m+1).padStart(2,'0')}`;
+  Object.entries(cache).filter(([k])=>k.startsWith(mKey)).forEach(([,dd])=>(dd.expenses||[]).forEach(e=>{catTotals[e.cat]=(catTotals[e.cat]||0)+e.amount;}));
   const sortedCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
   const maxCat=sortedCats[0]?.[1]||1;
 
+  // Build month selector
+  const monthSel = Array.from({length:12},(_,i)=>{
+    const ym2=`${y}-${String(i+1).padStart(2,'0')}`;
+    return `<button class="month-tab ${i===m?'active':''}" onclick="renderMonth(${y},${i})">${MS[i]}</button>`;
+  }).join('');
+  const yearSel = `<button class="month-tab ${y===t.y-1?'active':''}" onclick="renderMonth(${t.y-1},${m})">${t.y-1}</button>
+    <button class="month-tab ${y===t.y?'active':''}" onclick="renderMonth(${t.y},${m})">${t.y}</button>`;
+
   document.getElementById('month-body').innerHTML=`
+    <div style="margin-bottom:14px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">${yearSel}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${monthSel}</div>
+    </div>
     <div class="grid3" style="margin-bottom:14px">
       <div class="stat"><div class="stat-l">Брутто за месяц</div><div class="stat-v Y">${N(totalBrutto)} zł</div></div>
       <div class="stat"><div class="stat-l">Нетто за месяц</div><div class="stat-v G">${N(totalNetto)} zł</div><div class="stat-s">план ${N(ws.salary/ws.std_hours*(ws.salary>0?ws.std_hours:160))} zł</div></div>
@@ -656,6 +695,94 @@ async function renderMonth() {
 }
 
 // ── GOALS ──────────────────────────────────────────────────────────
+
+async function renderYear() {
+  document.getElementById('year-body').innerHTML=`<div class="spin-wrap"><div class="spinner"></div></div>`;
+  const t=T(); const y=t.y;
+  const ws=await getWS(); const ps=await getPS();
+  let months=[];
+  for(let m=0;m<12;m++){
+    const {totalBrutto,totalNetto,totalExp}=monthCalc(cache,ws,y,m);
+    months.push({m,totalBrutto,totalNetto,totalExp});
+  }
+  const totalYBrutto=months.reduce((s,x)=>s+x.totalBrutto,0);
+  const totalYNetto=months.reduce((s,x)=>s+x.totalNetto,0);
+  const totalYExp=months.reduce((s,x)=>s+x.totalExp,0);
+  const maxV=Math.max(...months.map(x=>Math.max(x.totalNetto,x.totalExp)),1);
+  document.getElementById('year-body').innerHTML=`
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="stat"><div class="stat-l">Брутто за ${y}</div><div class="stat-v Y">${N(totalYBrutto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Нетто за ${y}</div><div class="stat-v G">${N(totalYNetto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Расходы за ${y}</div><div class="stat-v R">${N(totalYExp)} zł</div></div>
+      <div class="stat"><div class="stat-l">Баланс</div><div class="stat-v ${totalYNetto-totalYExp>=0?'G':'R'}">${N(totalYNetto-totalYExp)} zł</div></div>
+      <div class="stat"><div class="stat-l">Ср. нетто/мес</div><div class="stat-v B">${N(totalYNetto/12)} zł</div></div>
+      <div class="stat"><div class="stat-l">Ср. расходы/мес</div><div class="stat-v">${N(totalYExp/12)} zł</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">По месяцам ${y}</div>
+      <div class="chart-bars">
+        ${months.map(({totalNetto,totalExp})=>`
+          <div class="cbar-g">
+            <div class="cbar" style="background:var(--green);height:${Math.round(totalNetto/maxV*100)}%"></div>
+            <div class="cbar" style="background:var(--red);height:${Math.round(totalExp/maxV*100)}%"></div>
+          </div>`).join('')}
+      </div>
+      <div class="chart-xl">${MS.map(s=>`<div class="cxl">${s}</div>`).join('')}</div>
+      <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2)">
+        <span style="color:var(--green)">■ Нетто</span><span style="color:var(--red)">■ Расходы</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Детали по месяцам</div>
+      ${months.map(({m,totalBrutto,totalNetto,totalExp})=>totalBrutto>0||totalExp>0?`
+        <div class="work-row" onclick="nav('month',document.querySelectorAll('.nb')[1]);renderMonth(${y},${m})" style="cursor:pointer">
+          <span class="work-label">${MR[m]}</span>
+          <span style="display:flex;gap:16px;font-size:13px">
+            <span class="Y">${N(totalBrutto)} ₽</span>
+            <span class="G">${N(totalNetto)} zł</span>
+            <span class="R">−${N(totalExp)} zł</span>
+          </span>
+        </div>`:'').join('')}
+    </div>`;
+}
+
+async function renderAllTime() {
+  document.getElementById('alltime-body').innerHTML=`<div class="spin-wrap"><div class="spinner"></div></div>`;
+  const ws=await getWS(); const ps=await getPS();
+  // Get all unique years from cache
+  const years=new Set(Object.keys(cache).map(k=>k.split('-')[0]));
+  if(!years.size){document.getElementById('alltime-body').innerHTML='<div class="card" style="color:var(--text3);text-align:center;padding:40px">Нет данных</div>';return;}
+  let totalBrutto=0,totalNetto=0,totalExp=0;
+  let yearStats=[];
+  for(const yr of [...years].sort()){
+    let yb=0,yn=0,ye=0;
+    for(let m=0;m<12;m++){
+      const {totalBrutto:b,totalNetto:n,totalExp:e}=monthCalc(cache,ws,parseInt(yr),m);
+      yb+=b;yn+=n;ye+=e;
+    }
+    totalBrutto+=yb;totalNetto+=yn;totalExp+=ye;
+    yearStats.push({yr,yb,yn,ye});
+  }
+  const months=Object.keys(cache).length;
+  document.getElementById('alltime-body').innerHTML=`
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="stat"><div class="stat-l">Всего брутто</div><div class="stat-v Y">${N(totalBrutto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Всего нетто</div><div class="stat-v G">${N(totalNetto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Всего расходов</div><div class="stat-v R">${N(totalExp)} zł</div></div>
+      <div class="stat"><div class="stat-l">Итог баланс</div><div class="stat-v ${totalNetto-totalExp>=0?'G':'R'}">${N(totalNetto-totalExp)} zł</div></div>
+      <div class="stat"><div class="stat-l">Месяцев с данными</div><div class="stat-v B">${months}</div></div>
+      <div class="stat"><div class="stat-l">Ср. нетто/мес</div><div class="stat-v">${months>0?N(totalNetto/months):0} zł</div></div>
+    </div>
+    ${yearStats.map(({yr,yb,yn,ye})=>`
+    <div class="card">
+      <div class="card-title">${yr}</div>
+      <div class="work-row"><span class="work-label">Брутто</span><span class="work-val Y">${N(yb)} zł</span></div>
+      <div class="work-row"><span class="work-label">Нетто</span><span class="work-val G">${N(yn)} zł</span></div>
+      <div class="work-row"><span class="work-label">Расходы</span><span class="work-val R">${N(ye)} zł</span></div>
+      <div class="work-row"><span class="work-label">Баланс</span><span class="work-val ${yn-ye>=0?'G':'R'}">${N(yn-ye)} zł</span></div>
+    </div>`).join('')}`;
+}
+
 async function renderGoals() {
   const sv=await getSV(), ps=await getPS(), ws=await getWS();
   const debts=await getDebts();
