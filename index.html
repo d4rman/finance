@@ -283,7 +283,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 <script>
 // ══ CONFIG — ЗАМЕНИ ЭТИ 3 СТРОКИ ══════════════════════════════════
 const SB_URL  = 'https://emqlkygenncocvayhwdu.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcWxreWdlbm5jb2N2YXlod3UiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDY3MTEzMSwiZXhwIjoyMDk2MjQ3MTMxfQ.JjA71Sa7x7XyqJGtI1buC-ZGuZ8uZIT43Bjej1nvdn0';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcWxreWdlbm5jb2N2YXlod2R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzExMzEsImV4cCI6MjA5NjI0NzEzMX0.JjA71Sa7x7XyqJGtI1buC-ZGuZ8uZIT43Bjej1nvdn0';
 const BOT_NAME = 'FinanceMonth04bot'; // без @, например: DmytroFinBot
 // ══════════════════════════════════════════════════════════════════
 
@@ -384,10 +384,8 @@ async function getDebts() {
 
 // ── AUTH ───────────────────────────────────────────────────────────
 window.onTgAuth = async function(u) {
-  // Try find existing user first
   let {data: found} = await sb.from('users').select('*').eq('tg_id', u.id).maybeSingle();
   if(found){ CU=found; localStorage.setItem('fin_user',JSON.stringify(CU)); showApp(); return; }
-  // Insert new user
   const {data: inserted, error} = await sb.from('users')
     .insert({tg_id:u.id, first_name:u.first_name, username:u.username||''})
     .select().single();
