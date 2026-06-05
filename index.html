@@ -1,1 +1,824 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finance — Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0c0c10;--s1:#13131a;--s2:#1a1a24;--s3:#21212e;--s4:#2a2a3a;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
+  --accent:#7c6af7;--accent2:#a78bfa;--accent3:#c4b5fd;
+  --green:#34d399;--green2:#6ee7b7;
+  --red:#f87171;--yellow:#fbbf24;--blue:#60a5fa;--orange:#fb923c;
+  --text:#eeecff;--text2:#9490b8;--text3:#524f6e;
+  --r:14px;--rs:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:15px;}
+body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased;}
 
+/* ── LOGIN ── */
+#login-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px;}
+.login-icon{font-size:56px;line-height:1;}
+.login-title{font-size:26px;font-weight:700;letter-spacing:-.02em;}
+.login-sub{color:var(--text2);font-size:14px;text-align:center;max-width:280px;line-height:1.6;}
+.login-card{background:var(--s1);border:1px solid var(--border2);border-radius:var(--r);padding:28px 24px;width:100%;max-width:320px;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.login-note{font-size:11px;color:var(--text3);text-align:center;}
+
+/* ── NAV ── */
+#app{display:none;}
+.topbar{background:var(--s1);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:200;height:52px;}
+.topbar-brand{font-size:15px;font-weight:700;color:var(--accent3);letter-spacing:-.01em;margin-right:12px;white-space:nowrap;}
+.nav-scroll{display:flex;gap:2px;flex:1;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none;}
+.nav-scroll::-webkit-scrollbar{display:none;}
+.nb{flex-shrink:0;padding:6px 13px;border-radius:99px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;transition:.18s;white-space:nowrap;}
+.nb.on{background:var(--accent);color:#fff;}
+.nb:hover:not(.on){background:var(--s3);color:var(--text);}
+.user-chip{margin-left:8px;flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);}
+.out-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:3px;line-height:1;}
+.out-btn:hover{color:var(--red);}
+
+/* ── PAGES ── */
+.page{display:none;padding:20px 16px 40px;max-width:860px;margin:0 auto;}
+.page.on{display:block;}
+
+/* ── COMMON ── */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px;}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;}
+.stat{background:var(--s2);border-radius:var(--rs);padding:14px;}
+.stat-l{font-size:11px;color:var(--text3);margin-bottom:5px;}
+.stat-v{font-size:20px;font-weight:700;letter-spacing:-.02em;}
+.stat-s{font-size:11px;color:var(--text2);margin-top:3px;}
+.G{color:var(--green);}.R{color:var(--red);}.Y{color:var(--yellow);}.B{color:var(--accent2);}.O{color:var(--orange);}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:600;}
+.tag-g{background:rgba(52,211,153,.12);color:var(--green);}
+.tag-r{background:rgba(248,113,113,.12);color:var(--red);}
+.tag-y{background:rgba(251,191,36,.12);color:var(--yellow);}
+.tag-b{background:rgba(124,106,247,.15);color:var(--accent2);}
+
+/* ── INPUTS ── */
+.inp{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:9px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:.18s;width:100%;}
+.inp:focus{border-color:var(--accent);}
+.inp::placeholder{color:var(--text3);}
+.inp-group{display:flex;flex-direction:column;gap:5px;}
+.inp-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.btn{padding:10px 18px;border-radius:var(--rs);border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;}
+.btn:hover{background:var(--accent2);}
+.btn:active{transform:scale(.97);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-full{width:100%;}
+.btn-sm{padding:7px 14px;font-size:12px;}
+.btn-ghost{background:var(--s3);color:var(--text2);}
+.btn-ghost:hover{background:var(--s4);color:var(--text);}
+.btn-red{background:rgba(248,113,113,.15);color:var(--red);}
+.btn-red:hover{background:rgba(248,113,113,.25);}
+
+/* ── CALENDAR ── */
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.cal-month{font-size:17px;font-weight:700;}
+.cal-arr{background:var(--s3);border:1px solid var(--border);color:var(--text);border-radius:99px;width:34px;height:34px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:.18s;flex-shrink:0;}
+.cal-arr:hover{background:var(--accent);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dow{text-align:center;font-size:10px;color:var(--text3);padding:5px 0;font-weight:600;text-transform:uppercase;}
+.cal-day{aspect-ratio:1;border-radius:var(--rs);border:1px solid transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:.15s;font-size:13px;font-weight:500;position:relative;user-select:none;}
+.cal-day:hover{background:var(--s3);}
+.cal-day.today{border-color:var(--accent);color:var(--accent2);}
+.cal-day.sel{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important;}
+.cal-day.has-work .dot{background:var(--green);}
+.cal-day.has-exp .dot{background:var(--red);}
+.cal-day.has-both .dot{background:var(--yellow);}
+.dot{width:4px;height:4px;border-radius:50%;position:absolute;bottom:4px;}
+.cal-day.empty{opacity:.15;pointer-events:none;}
+.cal-legend{display:flex;gap:14px;margin-top:10px;font-size:11px;color:var(--text2);}
+.cal-legend span{display:flex;align-items:center;gap:5px;}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+
+/* ── DAY PANEL ── */
+.day-panel{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-top:14px;}
+.dp-title{font-size:16px;font-weight:700;margin-bottom:16px;}
+
+/* ── HOURS BUTTONS ── */
+.hour-type-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.ht-btn{padding:7px 14px;border-radius:99px;border:1px solid var(--border);background:var(--s2);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.15s;white-space:nowrap;}
+.ht-btn:hover,.ht-btn.on{border-color:var(--accent);color:var(--accent2);background:rgba(124,106,247,.15);}
+.ht-btn.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* ── EXPENSE LIST ── */
+.exp-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+.exp-row:last-child{border-bottom:none;}
+.exp-title{font-size:14px;font-weight:500;}
+.exp-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.del-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:4px 6px;border-radius:6px;flex-shrink:0;}
+.del-btn:hover{color:var(--red);background:rgba(248,113,113,.1);}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin:6px 0;}
+.prog-top{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;}
+.prog-bg{height:7px;background:var(--s3);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s;}
+
+/* ── GOAL CARD ── */
+.goal-c{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:10px;}
+.goal-name{font-weight:600;margin-bottom:10px;font-size:15px;}
+
+/* ── DEBT CARD ── */
+.debt-c{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+.debt-info{flex:1;}
+.debt-name{font-weight:600;}
+.debt-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.debt-amt{font-weight:700;font-size:17px;color:var(--green);white-space:nowrap;}
+
+/* ── SETTINGS ── */
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--border);gap:14px;}
+.set-row:last-child{border-bottom:none;}
+.set-l{font-size:14px;}
+.set-s{font-size:11px;color:var(--text2);margin-top:2px;}
+.set-inp{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:7px 11px;color:var(--text);font-family:inherit;font-size:14px;width:120px;text-align:right;outline:none;}
+.set-inp:focus{border-color:var(--accent);}
+
+/* ── CHART ── */
+.chart-bars{display:flex;align-items:flex-end;gap:5px;height:130px;}
+.cbar-g{flex:1;display:flex;gap:2px;align-items:flex-end;}
+.cbar{flex:1;border-radius:3px 3px 0 0;min-height:3px;transition:height .4s;}
+.chart-xl{display:flex;gap:5px;margin-top:5px;}
+.cxl{flex:1;text-align:center;font-size:9px;color:var(--text3);}
+
+/* ── WORK SUMMARY ── */
+.work-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.work-row:last-child{border-bottom:none;}
+.work-label{color:var(--text2);}
+.work-val{font-weight:600;}
+
+/* ── SECTION DIVIDER ── */
+.sdiv{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 10px;}
+
+/* ── SPINNER ── */
+.spin-wrap{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--text3);}
+.spinner{width:18px;height:18px;border:2px solid var(--s3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:var(--rs);font-size:13px;transform:translateY(70px);opacity:0;transition:.25s;z-index:9999;max-width:260px;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+@media(max-width:500px){
+  .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr;}
+  .cal-day{font-size:11px;}
+  .page{padding:14px 12px 40px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══════════════════════════════════════════════════════ -->
+<div id="login-screen">
+  <div class="login-icon">💰</div>
+  <div class="login-title">Finance Tracker</div>
+  <div class="login-sub">Личный трекер зарплаты, расходов и накоплений</div>
+  <div class="login-card">
+    <div id="tg-btn-wrap"></div>
+    <div class="login-note">Доступ только через Telegram.<br>Данные хранятся в облаке.</div>
+  </div>
+</div>
+
+<!-- ══ APP ════════════════════════════════════════════════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">💰 Finance</div>
+    <div class="nav-scroll">
+      <button class="nb on"  onclick="nav('calendar',this)">📅 Календарь</button>
+      <button class="nb"     onclick="nav('month',this)">📊 Месяц</button>
+      <button class="nb"     onclick="nav('goals',this)">🎯 Цели</button>
+      <button class="nb"     onclick="nav('debts',this)">💸 Долги</button>
+      <button class="nb"     onclick="nav('settings',this)">⚙️ Настройки</button>
+    </div>
+    <div class="user-chip">
+      <span id="uname"></span>
+      <button class="out-btn" onclick="logout()" title="Выйти">✕</button>
+    </div>
+  </div>
+
+  <!-- ── CALENDAR ── -->
+  <div id="page-calendar" class="page on">
+    <div class="card">
+      <div class="cal-head">
+        <button class="cal-arr" onclick="chMonth(-1)">‹</button>
+        <div class="cal-month" id="cal-label"></div>
+        <button class="cal-arr" onclick="chMonth(1)">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow">Пн</div><div class="cal-dow">Вт</div><div class="cal-dow">Ср</div>
+        <div class="cal-dow">Чт</div><div class="cal-dow">Пт</div><div class="cal-dow">Сб</div><div class="cal-dow">Вс</div>
+        <div id="cal-days" style="display:contents"></div>
+      </div>
+      <div class="cal-legend">
+        <span><div class="leg-dot" style="background:var(--green)"></div>Работа</span>
+        <span><div class="leg-dot" style="background:var(--red)"></div>Расход</span>
+        <span><div class="leg-dot" style="background:var(--yellow)"></div>Оба</span>
+      </div>
+    </div>
+    <div id="day-panel">
+      <div style="color:var(--text3);font-size:13px;text-align:center;padding:24px">← Выбери день</div>
+    </div>
+  </div>
+
+  <!-- ── MONTH ── -->
+  <div id="page-month" class="page">
+    <div id="month-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
+  </div>
+
+  <!-- ── GOALS ── -->
+  <div id="page-goals" class="page">
+    <div id="goals-body"><div class="spin-wrap"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- ── DEBTS ── -->
+  <div id="page-debts" class="page">
+    <div class="card">
+      <div class="card-title">Кто должен</div>
+      <div id="debts-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Отметить получение</div>
+      <div class="grid2" style="margin-bottom:10px">
+        <div class="inp-group"><div class="inp-label">Должник</div>
+          <select id="debt-sel" class="inp"><option value="">Выбрать...</option></select>
+        </div>
+        <div class="inp-group"><div class="inp-label">Сумма (zł)</div>
+          <input type="number" id="debt-amt-inp" class="inp" placeholder="0">
+        </div>
+      </div>
+      <button class="btn btn-full" onclick="receiveDebt()">✅ Записать получение</button>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS ── -->
+  <div id="page-settings" class="page">
+    <div class="card">
+      <div class="card-title">Параметры расчёта зарплаты</div>
+      <div id="work-settings"></div>
+      <button class="btn btn-full" style="margin-top:16px" onclick="saveWS()">💾 Сохранить</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Плановые расходы и накопления</div>
+      <div id="plan-settings"></div>
+      <button class="btn btn-full" style="margin-top:16px" onclick="savePS()">💾 Сохранить</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Текущие накопления (факт)</div>
+      <div id="sav-settings"></div>
+      <button class="btn btn-full" style="margin-top:16px" onclick="saveSavings()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CONFIG — ЗАМЕНИ ЭТИ 3 СТРОКИ ══════════════════════════════════
+const SB_URL  = 'https://emqlkygenncocvayhwdu.supabase.co';
+const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcWxreWdlbm5jb2N2YXlod3UiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDY3MTEzMSwiZXhwIjoyMDk2MjQ3MTMxfQ.JjA71Sa7x7XyqJGtI1buC-ZGuZ8uZIT43Bjej1nvdn0';
+const BOT_NAME = 'FinanceMonth04bot'; // без @, например: DmytroFinBot
+// ══════════════════════════════════════════════════════════════════
+
+const sb = supabase.createClient(SB_URL, SB_KEY);
+
+// ── CONSTANTS ──────────────────────────────────────────────────────
+const MR = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const MS = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const CATS = ['🍔 Еда','🚕 Такси','🏠 Жильё','💊 Здоровье','📱 Связь','👨‍👩‍👧 Семья','🚌 Проездной','🎮 Развлечения','👕 Одежда','❓ Другое'];
+const HT = [{k:'h0',l:'Обычные',pct:0,color:'var(--blue)'},{k:'h20',l:'Ночные +20%',pct:20,color:'var(--accent2)'},{k:'h50',l:'Сверхур. +50%',pct:50,color:'var(--yellow)'},{k:'h100',l:'Праздн./100%',pct:100,color:'var(--orange)'}];
+
+const DEF_WS = {salary:7000, std_hours:160, ulga:true};
+const DEF_PS = {expense_plan:4303, invest_plan:1100, apt_plan:1500, cushion_plan:300};
+const DEF_SV = {invest:18689, apt:0, cushion:5900};
+const DEF_DEBTS = [{name:'Отчим',total:12421,received:0},{name:'Кирилл',total:2765,received:0},{name:'Максим',total:889,received:0},{name:'Богдан',total:1050,received:0}];
+
+// ── STATE ──────────────────────────────────────────────────────────
+let CU = null; // current user (db row)
+let calY, calM, selDay = null, selCat = CATS[0];
+let cache = {}; // dateKey → {h0,h20,h50,h100, bonus, expenses[]}
+
+// ── UTILS ──────────────────────────────────────────────────────────
+const T = () => { const d=new Date(); return {y:d.getFullYear(),m:d.getMonth(),d:d.getDate()}; };
+const DK = (y,m,d) => `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const N = (v,dec=0) => Number(v||0).toLocaleString('ru',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+
+// ── SALARY CALC ────────────────────────────────────────────────────
+function calcDay(dayData, ws) {
+  const rate = ws.salary / ws.std_hours; // base hourly brutto
+  const h0   = (dayData.h0  ||0) * rate;
+  const h20  = (dayData.h20 ||0) * rate * 1.20;
+  const h50  = (dayData.h50 ||0) * rate * 1.50;
+  const h100 = (dayData.h100||0) * rate * 2.00;
+  const bonus = dayData.bonus || 0;
+  const brutto = h0 + h20 + h50 + h100 + bonus;
+  return {brutto, rate};
+}
+
+function calcNetto(brutto, ws) {
+  const zus = brutto * 0.1371;
+  const zdrowBase = brutto - zus;
+  const zdrowo = zdrowBase * 0.09;
+  const podatek = ws.ulga ? 0 : Math.max(0, (brutto - zus - 250) * 0.12 - 300);
+  return brutto - zus - zdrowo - podatek;
+}
+
+function monthCalc(cache, ws) {
+  let totalBrutto = 0, totalNetto = 0, totalExp = 0;
+  let h0=0,h20=0,h50=0,h100=0, totalHours=0;
+  Object.values(cache).forEach(dd => {
+    const {brutto} = calcDay(dd, ws);
+    totalBrutto += brutto;
+    totalHours += (dd.h0||0)+(dd.h20||0)+(dd.h50||0)+(dd.h100||0);
+    h0+=(dd.h0||0); h20+=(dd.h20||0); h50+=(dd.h50||0); h100+=(dd.h100||0);
+    (dd.expenses||[]).forEach(e => totalExp += e.amount);
+  });
+  totalNetto = calcNetto(totalBrutto, ws);
+  return {totalBrutto, totalNetto, totalExp, totalHours, h0, h20, h50, h100};
+}
+
+// ── DB ─────────────────────────────────────────────────────────────
+async function dbGet(table) {
+  const {data} = await sb.from(table).select('*').eq('user_id',CU.id).single();
+  return data;
+}
+async function dbUpsert(table, payload) {
+  await sb.from(table).upsert({user_id:CU.id, ...payload},{onConflict:'user_id'});
+}
+async function loadCache() {
+  const {data} = await sb.from('days').select('*').eq('user_id',CU.id);
+  cache = {};
+  (data||[]).forEach(r => {
+    cache[r.date] = {
+      h0:r.h0||0, h20:r.h20||0, h50:r.h50||0, h100:r.h100||0,
+      bonus:r.bonus||0, expenses:r.expenses||[]
+    };
+  });
+}
+async function saveDay(dk, dd) {
+  await sb.from('days').upsert({
+    user_id:CU.id, date:dk,
+    h0:dd.h0||0, h20:dd.h20||0, h50:dd.h50||0, h100:dd.h100||0,
+    bonus:dd.bonus||0, expenses:dd.expenses||[]
+  },{onConflict:'user_id,date'});
+  cache[dk] = dd;
+}
+async function getWS()  { const d=await dbGet('work_settings');  return d?.data || DEF_WS; }
+async function getPS()  { const d=await dbGet('plan_settings');  return d?.data || DEF_PS; }
+async function getSV()  { const d=await dbGet('savings');        return d?.data || DEF_SV; }
+async function getDebts() {
+  const {data} = await sb.from('debts').select('*').eq('user_id',CU.id).order('id');
+  if(data && data.length) return data;
+  for(const d of DEF_DEBTS)
+    await sb.from('debts').insert({user_id:CU.id, name:d.name, total:d.total, received:0});
+  const {data:d2} = await sb.from('debts').select('*').eq('user_id',CU.id).order('id');
+  return d2||[];
+}
+
+// ── AUTH ───────────────────────────────────────────────────────────
+window.onTgAuth = async function(u) {
+  const {data,error} = await sb.from('users')
+    .upsert({tg_id:u.id, first_name:u.first_name, username:u.username||''},{onConflict:'tg_id'})
+    .select().single();
+  if(error){toast('Ошибка входа');return;}
+  CU = data;
+  localStorage.setItem('fin_user', JSON.stringify(CU));
+  showApp();
+};
+
+async function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('uname').textContent = CU.first_name||'Дима';
+  await loadCache();
+  const t = T();
+  calY=t.y; calM=t.m;
+  renderCal();
+  selDate(t.y,t.m,t.d);
+}
+
+function logout() {
+  localStorage.removeItem('fin_user');
+  CU=null; cache={};
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+}
+
+// ── NAV ────────────────────────────────────────────────────────────
+function nav(pg, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+pg).classList.add('on');
+  btn.classList.add('on');
+  if(pg==='month') renderMonth();
+  if(pg==='goals') renderGoals();
+  if(pg==='debts') renderDebts();
+  if(pg==='settings') renderSettings();
+}
+
+// ── CALENDAR ───────────────────────────────────────────────────────
+function renderCal() {
+  document.getElementById('cal-label').textContent = `${MR[calM]} ${calY}`;
+  const first = new Date(calY,calM,1);
+  const last  = new Date(calY,calM+1,0);
+  const sdow  = (first.getDay()+6)%7;
+  const t = T();
+  let html='';
+  for(let i=0;i<sdow;i++) html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const k=DK(calY,calM,d), dd=cache[k]||{};
+    const hasW=(dd.h0||0)+(dd.h20||0)+(dd.h50||0)+(dd.h100||0)+(dd.bonus||0)>0;
+    const hasE=(dd.expenses||[]).length>0;
+    let cls='cal-day';
+    if(calY===t.y&&calM===t.m&&d===t.d) cls+=' today';
+    if(selDay&&selDay.y===calY&&selDay.m===calM&&selDay.d===d) cls+=' sel';
+    if(hasW&&hasE) cls+=' has-both';
+    else if(hasE) cls+=' has-exp';
+    else if(hasW) cls+=' has-work';
+    html+=`<div class="${cls}" onclick="selDate(${calY},${calM},${d})">${d}${hasW||hasE?'<div class="dot"></div>':''}</div>`;
+  }
+  document.getElementById('cal-days').innerHTML=html;
+}
+
+function chMonth(dir){
+  calM+=dir;
+  if(calM<0){calM=11;calY--;} if(calM>11){calM=0;calY++;}
+  renderCal();
+}
+
+function selDate(y,m,d){
+  selDay={y,m,d}; renderCal(); renderDP(y,m,d);
+}
+
+async function renderDP(y,m,d) {
+  const ws = await getWS();
+  const k = DK(y,m,d);
+  const dd = cache[k] || {h0:0,h20:0,h50:0,h100:0,bonus:0,expenses:[]};
+  const wd = ['вс','пн','вт','ср','чт','пт','сб'][new Date(y,m,d).getDay()];
+  const {brutto} = calcDay(dd,ws);
+  const netto = calcNetto(brutto,ws);
+  const totalExp = (dd.expenses||[]).reduce((s,e)=>s+e.amount,0);
+  const totalH = (dd.h0||0)+(dd.h20||0)+(dd.h50||0)+(dd.h100||0);
+
+  const expRows = (dd.expenses||[]).map((e,i)=>`
+    <div class="exp-row">
+      <div><div class="exp-title">${e.note||e.cat}</div><div class="exp-sub">${e.cat}</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-weight:700;color:var(--red)">−${N(e.amount)} zł</span>
+        <button class="del-btn" onclick="delExp('${k}',${i})">✕</button>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('day-panel').innerHTML = `
+  <div class="day-panel">
+    <div class="dp-title">${d} ${MR[m].toLowerCase()} ${y} · ${wd}</div>
+
+    <div class="grid4" style="margin-bottom:20px">
+      <div class="stat"><div class="stat-l">Часов</div><div class="stat-v B">${totalH}</div></div>
+      <div class="stat"><div class="stat-l">Брутто</div><div class="stat-v Y">${N(brutto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Нетто</div><div class="stat-v G">${N(netto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Расходы</div><div class="stat-v R">${N(totalExp)} zł</div></div>
+    </div>
+
+    <div class="sdiv">🕐 Рабочие часы</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      ${HT.map(h=>`
+        <div class="inp-group">
+          <div class="inp-label" style="color:${h.color}">${h.l}</div>
+          <input type="number" id="inp-${h.k}" class="inp" value="${dd[h.k]||''}" placeholder="0" min="0" max="24" step="0.5" oninput="previewDay('${k}')">
+        </div>`).join('')}
+    </div>
+    <div class="inp-group" style="margin-bottom:12px">
+      <div class="inp-label">💰 Премия / доп. начисление (brutto, zł)</div>
+      <input type="number" id="inp-bonus" class="inp" value="${dd.bonus||''}" placeholder="0" oninput="previewDay('${k}')">
+    </div>
+    <div id="day-preview" style="margin-bottom:12px"></div>
+    <button class="btn btn-full" onclick="saveWork('${k}')">💾 Сохранить рабочие часы</button>
+
+    <div class="sdiv" style="margin-top:20px">💸 Расходы</div>
+    <div class="hour-type-row">${CATS.map(c=>`<button class="ht-btn${c===selCat?' on':''}" onclick="pickCat(this,'${c}')">${c}</button>`).join('')}</div>
+    <div class="grid2" style="margin-bottom:10px">
+      <div class="inp-group"><div class="inp-label">Сумма (zł)</div><input type="number" id="inp-eamt" class="inp" placeholder="0"></div>
+      <div class="inp-group"><div class="inp-label">Заметка</div><input type="text" id="inp-enote" class="inp" placeholder="что купил..."></div>
+    </div>
+    <button class="btn btn-full btn-ghost" onclick="addExp('${k}')">➕ Добавить расход</button>
+
+    ${expRows?`<div class="sdiv" style="margin-top:20px">📋 Расходы дня</div><div>${expRows}</div>`:''}
+  </div>`;
+}
+
+function previewDay(k) {
+  const ws_cache = JSON.parse(localStorage.getItem('fin_ws')||'null') || DEF_WS;
+  const dd = readDayInputs();
+  const {brutto,rate} = calcDay(dd, ws_cache);
+  const netto = calcNetto(brutto, ws_cache);
+  const totalH = (dd.h0||0)+(dd.h20||0)+(dd.h50||0)+(dd.h100||0);
+  if(!totalH && !dd.bonus) { document.getElementById('day-preview').innerHTML=''; return; }
+  document.getElementById('day-preview').innerHTML=`
+    <div style="background:var(--s2);border-radius:var(--rs);padding:12px;font-size:13px;display:flex;gap:16px;flex-wrap:wrap">
+      <span>⏱ ${totalH} ч</span>
+      <span class="Y">Брутто: ${N(brutto,2)} zł</span>
+      <span class="G">Нетто: ${N(netto,2)} zł</span>
+      <span style="color:var(--text3)">Ставка: ${N(rate,2)} zł/ч</span>
+    </div>`;
+}
+
+function readDayInputs() {
+  return {
+    h0:   parseFloat(document.getElementById('inp-h0')?.value)||0,
+    h20:  parseFloat(document.getElementById('inp-h20')?.value)||0,
+    h50:  parseFloat(document.getElementById('inp-h50')?.value)||0,
+    h100: parseFloat(document.getElementById('inp-h100')?.value)||0,
+    bonus:parseFloat(document.getElementById('inp-bonus')?.value)||0,
+  };
+}
+
+async function saveWork(k) {
+  const dd = cache[k] || {expenses:[]};
+  const inp = readDayInputs();
+  const newDd = {...dd, ...inp};
+  await saveDay(k, newDd);
+  renderCal();
+  if(selDay) renderDP(selDay.y,selDay.m,selDay.d);
+  toast('✅ Часы сохранены');
+}
+
+function pickCat(btn,cat){
+  selCat=cat;
+  document.querySelectorAll('.ht-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+async function addExp(k) {
+  const amt = parseFloat(document.getElementById('inp-eamt')?.value);
+  if(!amt||amt<=0){toast('Введи сумму');return;}
+  const note = document.getElementById('inp-enote')?.value.trim()||'';
+  const dd = cache[k]||{h0:0,h20:0,h50:0,h100:0,bonus:0,expenses:[]};
+  dd.expenses = [...(dd.expenses||[]), {amount:amt,cat:selCat,note}];
+  await saveDay(k,dd);
+  renderCal();
+  if(selDay) renderDP(selDay.y,selDay.m,selDay.d);
+  toast('✅ Расход добавлен');
+}
+
+async function delExp(k,idx) {
+  const dd = cache[k];
+  dd.expenses.splice(idx,1);
+  await saveDay(k,dd);
+  renderCal();
+  if(selDay) renderDP(selDay.y,selDay.m,selDay.d);
+  toast('🗑 Удалено');
+}
+
+// ── MONTH ──────────────────────────────────────────────────────────
+async function renderMonth() {
+  document.getElementById('month-body').innerHTML=`<div class="spin-wrap"><div class="spinner"></div> Загрузка...</div>`;
+  const ws=await getWS(), ps=await getPS();
+  const t=T();
+  const {totalBrutto,totalNetto,totalExp,totalHours,h0,h20,h50,h100}=monthCalc(cache,ws);
+  const free=totalNetto-totalExp;
+  const savePct=totalNetto>0?Math.round((ps.invest_plan+ps.apt_plan+ps.cushion_plan)/totalNetto*100):0;
+  const days=new Date(t.y,t.m+1,0).getDate();
+  let daily=[];
+  for(let d=1;d<=days;d++){
+    const k=DK(t.y,t.m,d),dd=cache[k]||{};
+    const {brutto}=calcDay(dd,ws);
+    const exp=(dd.expenses||[]).reduce((s,e)=>s+e.amount,0);
+    daily.push({d,brutto,netto:calcNetto(brutto,ws),exp});
+  }
+  const maxV=Math.max(...daily.map(d=>Math.max(d.netto,d.exp)),1);
+  const catTotals={};
+  Object.values(cache).forEach(dd=>(dd.expenses||[]).forEach(e=>{catTotals[e.cat]=(catTotals[e.cat]||0)+e.amount;}));
+  const sortedCats=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const maxCat=sortedCats[0]?.[1]||1;
+
+  document.getElementById('month-body').innerHTML=`
+    <div class="grid3" style="margin-bottom:14px">
+      <div class="stat"><div class="stat-l">Брутто за месяц</div><div class="stat-v Y">${N(totalBrutto)} zł</div></div>
+      <div class="stat"><div class="stat-l">Нетто за месяц</div><div class="stat-v G">${N(totalNetto)} zł</div><div class="stat-s">план ${N(ws.salary/ws.std_hours*(ws.salary>0?ws.std_hours:160))} zł</div></div>
+      <div class="stat"><div class="stat-l">Расходы</div><div class="stat-v ${totalExp>ps.expense_plan?'R':'Y'}">${N(totalExp)} zł</div><div class="stat-s">план ${N(ps.expense_plan)}</div></div>
+      <div class="stat"><div class="stat-l">Баланс</div><div class="stat-v ${free>=0?'G':'R'}">${free>=0?'+':''}${N(free)} zł</div></div>
+      <div class="stat"><div class="stat-l">Всего часов</div><div class="stat-v B">${totalHours} ч</div></div>
+      <div class="stat"><div class="stat-l">Норма сбережений</div><div class="stat-v B">${savePct}%</div><div class="stat-s">цель &gt;25%</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Разбивка по типу часов</div>
+      <div class="grid4">
+        <div class="stat"><div class="stat-l" style="color:var(--blue)">Обычные 0%</div><div class="stat-v">${h0} ч</div></div>
+        <div class="stat"><div class="stat-l" style="color:var(--accent2)">Ночные +20%</div><div class="stat-v">${h20} ч</div></div>
+        <div class="stat"><div class="stat-l" style="color:var(--yellow)">Сверхур. +50%</div><div class="stat-v">${h50} ч</div></div>
+        <div class="stat"><div class="stat-l" style="color:var(--orange)">Праздн. +100%</div><div class="stat-v">${h100} ч</div></div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="work-row"><span class="work-label">Базовая ставка</span><span class="work-val">${N(ws.salary/ws.std_hours,2)} zł/ч брутто</span></div>
+        <div class="work-row"><span class="work-label">Итого брутто</span><span class="work-val Y">${N(totalBrutto,2)} zł</span></div>
+        <div class="work-row"><span class="work-label">Итого нетто (ulga ${ws.ulga?'✅':'❌'})</span><span class="work-val G">${N(totalNetto,2)} zł</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Нетто и расходы по дням</div>
+      <div class="chart-bars">
+        ${daily.map(({netto,exp})=>`
+          <div class="cbar-g">
+            <div class="cbar" style="background:var(--green);height:${Math.round(netto/maxV*100)}%"></div>
+            <div class="cbar" style="background:var(--red);height:${Math.round(exp/maxV*100)}%"></div>
+          </div>`).join('')}
+      </div>
+      <div class="chart-xl">${daily.map(({d})=>`<div class="cxl">${d%5===0||d===1?d:''}</div>`).join('')}</div>
+      <div style="display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--text2)">
+        <span style="color:var(--green)">■ Нетто заработок</span>
+        <span style="color:var(--red)">■ Расходы</span>
+      </div>
+    </div>
+
+    ${sortedCats.length?`<div class="card">
+      <div class="card-title">Расходы по категориям</div>
+      ${sortedCats.map(([cat,amt])=>`
+        <div style="margin-bottom:10px">
+          <div class="prog-top"><span>${cat}</span><span>${N(amt)} zł</span></div>
+          <div class="prog-bg"><div class="prog-fill" style="background:var(--red);width:${Math.round(amt/maxCat*100)}%"></div></div>
+        </div>`).join('')}
+    </div>`:''}
+  `;
+}
+
+// ── GOALS ──────────────────────────────────────────────────────────
+async function renderGoals() {
+  const sv=await getSV(), ps=await getPS(), ws=await getWS();
+  const debts=await getDebts();
+  const USD=4.15, cT=Math.round(2000*USD);
+  const cP=Math.min(100,Math.round(sv.cushion/cT*100));
+  const aP=Math.min(100,Math.round(sv.apt/200000*100));
+  const mC=ps.cushion_plan>0?Math.ceil((cT-sv.cushion)/ps.cushion_plan):'∞';
+  const mA=ps.apt_plan>0?Math.ceil((200000-sv.apt)/ps.apt_plan):'∞';
+  const debtLeft=debts.reduce((s,d)=>s+(d.total-d.received),0);
+  const {totalNetto}=monthCalc(cache,ws);
+  const bar=(p,c)=>`<div class="prog-bg"><div class="prog-fill" style="background:${c};width:${p}%"></div></div>`;
+  document.getElementById('goals-body').innerHTML=`
+    ${totalNetto>0?`<div class="card">
+      <div class="card-title">💰 Текущий месяц — заработано нетто</div>
+      <div class="stat-v G" style="font-size:28px">${N(totalNetto)} zł</div>
+    </div>`:''}
+    <div class="goal-c">
+      <div class="goal-name">🛡 Подушка безопасности — $2 000</div>
+      <div class="prog-top"><span>${N(sv.cushion)} zł</span><span>${N(cT)} zł</span></div>
+      ${bar(cP,'var(--blue)')}
+      <div style="font-size:12px;color:var(--text2);margin-top:8px">${cP}% · ${cP>=100?'✅ Цель достигнута!':'~'+mC+' мес'}</div>
+    </div>
+    <div class="goal-c">
+      <div class="goal-name">🏠 Квартира в Украине</div>
+      <div class="prog-top"><span>${N(sv.apt)} zł</span><span>200 000 zł</span></div>
+      ${bar(aP,'var(--green)')}
+      <div style="font-size:12px;color:var(--text2);margin-top:8px">${aP}% · ~${mA} мес при ${N(ps.apt_plan)} zł/мес</div>
+    </div>
+    <div class="goal-c">
+      <div class="goal-name">📈 Инвестиции Trading 212</div>
+      <div style="font-size:26px;font-weight:700;color:var(--accent2);margin:8px 0">${N(sv.invest)} zł</div>
+      <div style="font-size:12px;color:var(--text2)">+${N(ps.invest_plan)} zł/мес · При 7%/год за 40 лет → ~290 000 €</div>
+    </div>
+    <div class="goal-c" style="border-color:rgba(124,106,247,.3)">
+      <div class="goal-name">💰 Ожидаемые долги</div>
+      <div style="font-size:26px;font-weight:700;color:var(--accent2);margin:8px 0">+${N(debtLeft)} zł</div>
+      <div style="font-size:12px;color:var(--text2)">→ Всё идёт на квартиру</div>
+    </div>`;
+}
+
+// ── DEBTS ──────────────────────────────────────────────────────────
+async function renderDebts() {
+  const debts=await getDebts();
+  document.getElementById('debt-sel').innerHTML='<option value="">Выбрать...</option>'+
+    debts.map(d=>`<option value="${d.id}">${d.name} (осталось ${N(d.total-d.received)} zł)</option>`).join('');
+  document.getElementById('debts-list').innerHTML=debts.map(d=>{
+    const rem=d.total-d.received;
+    const p=Math.min(100,Math.round(d.received/d.total*100));
+    return`<div class="debt-c">
+      <div class="debt-info">
+        <div class="debt-name">${d.name}</div>
+        <div class="debt-sub">Всего: ${N(d.total)} · Получено: ${N(d.received)} zł</div>
+        <div style="margin-top:8px"><div class="prog-bg"><div class="prog-fill" style="background:var(--green);width:${p}%"></div></div></div>
+      </div>
+      <div class="debt-amt" style="${rem<=0?'opacity:.35':''}">+${N(rem)} zł</div>
+    </div>`;}).join('');
+}
+
+async function receiveDebt() {
+  const id=document.getElementById('debt-sel').value;
+  const amt=parseFloat(document.getElementById('debt-amt-inp').value);
+  if(!id||!amt){toast('Выбери человека и сумму');return;}
+  const debts=await getDebts();
+  const d=debts.find(x=>x.id==id);
+  if(d) await sb.from('debts').update({received:Math.min(d.total,d.received+amt)}).eq('id',id);
+  const sv=await getSV();
+  sv.apt=(sv.apt||0)+amt;
+  await dbUpsert('savings',{data:sv});
+  const t=T(), k=DK(t.y,t.m,t.d);
+  const dd=cache[k]||{h0:0,h20:0,h50:0,h100:0,bonus:0,expenses:[]};
+  dd.bonus=(dd.bonus||0)+amt;
+  await saveDay(k,dd);
+  document.getElementById('debt-amt-inp').value='';
+  renderDebts();
+  toast(`✅ +${N(amt)} zł → квартира`);
+}
+
+// ── SETTINGS ───────────────────────────────────────────────────────
+async function renderSettings() {
+  const ws=await getWS(), ps=await getPS(), sv=await getSV();
+  localStorage.setItem('fin_ws', JSON.stringify(ws));
+  document.getElementById('work-settings').innerHTML=[
+    {k:'salary',   l:'Оклад брутто',          s:'базовый месячный оклад (zł)'},
+    {k:'std_hours',l:'Стандартные часы/месяц', s:'обычно 160 ч (8ч × 20 дней)'},
+  ].map(r=>`<div class="set-row">
+    <div><div class="set-l">${r.l}</div><div class="set-s">${r.s}</div></div>
+    <input type="number" class="set-inp" id="ws-${r.k}" value="${ws[r.k]||0}">
+  </div>`).join('')+`
+  <div class="set-row">
+    <div><div class="set-l">Ulga dla młodych</div><div class="set-s">0% налог до 26 лет (до 85 528 zł/год)</div></div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+      <input type="checkbox" id="ws-ulga" ${ws.ulga?'checked':''} style="width:18px;height:18px;accent-color:var(--accent)">
+      <span style="font-size:13px;color:var(--text2)">Включена</span>
+    </label>
+  </div>`;
+
+  document.getElementById('plan-settings').innerHTML=[
+    {k:'expense_plan', l:'📤 Бюджет расходов/мес',   s:'план'},
+    {k:'invest_plan',  l:'📈 Инвестиции T212/мес',    s:''},
+    {k:'apt_plan',     l:'🏠 Квартира/мес',            s:''},
+    {k:'cushion_plan', l:'🛡 Пополнение подушки/мес', s:''},
+  ].map(r=>`<div class="set-row">
+    <div><div class="set-l">${r.l}</div>${r.s?`<div class="set-s">${r.s}</div>`:''}</div>
+    <input type="number" class="set-inp" id="ps-${r.k}" value="${ps[r.k]||0}">
+  </div>`).join('');
+
+  document.getElementById('sav-settings').innerHTML=[
+    {k:'invest',  l:'📈 Портфель сейчас'},
+    {k:'apt',     l:'🏠 На квартиру сейчас'},
+    {k:'cushion', l:'🛡 Подушка сейчас'},
+  ].map(r=>`<div class="set-row">
+    <div class="set-l">${r.l}</div>
+    <input type="number" class="set-inp" id="sv-${r.k}" value="${sv[r.k]||0}">
+  </div>`).join('');
+}
+
+async function saveWS() {
+  const d={
+    salary:parseFloat(document.getElementById('ws-salary').value)||7000,
+    std_hours:parseFloat(document.getElementById('ws-std_hours').value)||160,
+    ulga:document.getElementById('ws-ulga').checked
+  };
+  await dbUpsert('work_settings',{data:d});
+  localStorage.setItem('fin_ws', JSON.stringify(d));
+  toast('✅ Параметры зарплаты сохранены');
+}
+async function savePS() {
+  const d={};
+  ['expense_plan','invest_plan','apt_plan','cushion_plan'].forEach(k=>{
+    d[k]=parseFloat(document.getElementById('ps-'+k).value)||0;
+  });
+  await dbUpsert('plan_settings',{data:d});
+  toast('✅ Планы сохранены');
+}
+async function saveSavings() {
+  const d={};
+  ['invest','apt','cushion'].forEach(k=>{
+    d[k]=parseFloat(document.getElementById('sv-'+k).value)||0;
+  });
+  await dbUpsert('savings',{data:d});
+  toast('✅ Накопления обновлены');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+(function(){
+  // Inject Telegram Login Widget
+  const s=document.createElement('script');
+  s.src='https://telegram.org/js/telegram-widget.js?22';
+  s.setAttribute('data-telegram-login', BOT_NAME);
+  s.setAttribute('data-size','large');
+  s.setAttribute('data-radius','10');
+  s.setAttribute('data-onauth','onTgAuth(user)');
+  s.setAttribute('data-request-access','write');
+  s.async=true;
+  document.getElementById('tg-btn-wrap').appendChild(s);
+
+  // Auto-login from localStorage
+  const saved=localStorage.getItem('fin_user');
+  if(saved){ CU=JSON.parse(saved); showApp(); }
+})();
+</script>
+</body>
+</html>
