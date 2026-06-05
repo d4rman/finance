@@ -200,6 +200,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
       <button class="nb"     onclick="nav('year',this)">📈 Год</button>
       <button class="nb"     onclick="nav('alltime',this)">🌍 Всё время</button>
       <button class="nb"     onclick="nav('goals',this)">🎯 Цели</button>
+      <button class="nb"     onclick="nav('invest',this)">📈 Инвестиции</button>
       <button class="nb"     onclick="nav('debts',this)">💸 Долги</button>
       <button class="nb"     onclick="nav('settings',this)">⚙️ Настройки</button>
     </div>
@@ -236,6 +237,11 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
   <!-- ── MONTH ── -->
   <div id="page-month" class="page">
     <div id="month-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
+  </div>
+
+  <!-- ── INVEST ── -->
+  <div id="page-invest" class="page">
+    <div id="invest-body"></div>
   </div>
 
   <!-- ── YEAR ── -->
@@ -445,6 +451,7 @@ function nav(pg, btn) {
   if(pg==='month') renderMonth();
   if(pg==='goals') renderGoals();
   if(pg==='year') renderYear();
+  if(pg==='invest') renderInvest();
   if(pg==='alltime') renderAllTime();
   if(pg==='debts') renderDebts();
   if(pg==='settings') renderSettings();
@@ -791,6 +798,196 @@ async function renderAllTime() {
       <div class="work-row"><span class="work-label">Расходы</span><span class="work-val R">${N(ye)} zł</span></div>
       <div class="work-row"><span class="work-label">Баланс</span><span class="work-val ${yn-ye>=0?'G':'R'}">${N(yn-ye)} zł</span></div>
     </div>`).join('')}`;
+}
+
+
+async function renderInvest() {
+  const sv = await getSavings ? getSV() : {invest:18689};
+  const ps = await getPS();
+  const monthly = ps.invest_plan || 1100;
+
+  // Real performance data
+  const startDate = new Date('2024-11-05');
+  const today = new Date();
+  const monthsElapsed = (today - startDate) / (1000 * 60 * 60 * 24 * 30.44);
+  const invested = 16670;
+
+  // Wait for sv
+  const svData = await getSV();
+  const current = svData.invest || 18689;
+  const profit = current - invested;
+  const profitPct = (profit / invested * 100);
+  const annualReturn = ((Math.pow(current/invested, 12/monthsElapsed) - 1) * 100);
+
+  // Compound interest projections
+  function project(principal, monthly, years, rate) {
+    let total = principal;
+    const monthlyRate = rate / 100 / 12;
+    for(let i = 0; i < years * 12; i++) {
+      total = total * (1 + monthlyRate) + monthly;
+    }
+    return Math.round(total);
+  }
+
+  const scenarios = [
+    {name:'Консервативный', rate:5,  color:'var(--blue)'},
+    {name:'Реалистичный',   rate:10, color:'var(--green)'},
+    {name:'Оптимистичный',  rate:15, color:'var(--yellow)'},
+    {name:'Твой темп',      rate:Math.min(annualReturn, 30), color:'var(--accent2)'},
+  ];
+
+  const years_list = [5, 10, 20, 30, 40];
+
+  // Build projection table
+  let tableRows = years_list.map(y => {
+    const cols = scenarios.map(s =>
+      `<td style="text-align:right;font-weight:600;color:${s.color};padding:8px 12px">${N(project(current, monthly, y, s.rate))} zł</td>`
+    ).join('');
+    return `<tr><td style="padding:8px 12px;color:var(--text2);font-weight:500">${y} лет</td>${cols}</tr>`;
+  }).join('');
+
+  // Chart data for realistic scenario (10%)
+  const chartPoints = [1,2,3,5,10,15,20,30,40].map(y => ({
+    y,
+    conservative: project(current, monthly, y, 5),
+    realistic: project(current, monthly, y, 10),
+    optimistic: project(current, monthly, y, 15),
+  }));
+  const maxChart = chartPoints[chartPoints.length-1].optimistic;
+
+  // Build bar chart
+  const chartBars = chartPoints.map(p => `
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+      <div style="width:100%;display:flex;gap:2px;align-items:flex-end;height:140px">
+        <div style="flex:1;background:var(--blue);border-radius:3px 3px 0 0;height:${Math.round(p.conservative/maxChart*140)}px;min-height:4px"></div>
+        <div style="flex:1;background:var(--green);border-radius:3px 3px 0 0;height:${Math.round(p.realistic/maxChart*140)}px;min-height:4px"></div>
+        <div style="flex:1;background:var(--yellow);border-radius:3px 3px 0 0;height:${Math.round(p.optimistic/maxChart*140)}px;min-height:4px"></div>
+      </div>
+      <div style="font-size:10px;color:var(--text3)">${p.y}л</div>
+    </div>`).join('');
+
+  // Monthly needed to reach goals
+  function monthsToGoal(principal, monthly, target, rate) {
+    const mr = rate/100/12;
+    let total = principal, months = 0;
+    while(total < target && months < 600) { total = total*(1+mr)+monthly; months++; }
+    return months;
+  }
+  const to100k = monthsToGoal(current, monthly, 100000, 10);
+  const to500k = monthsToGoal(current, monthly, 500000, 10);
+  const to1m   = monthsToGoal(current, monthly, 1000000, 10);
+
+  document.getElementById('invest-body').innerHTML = `
+    <div class="grid4" style="margin-bottom:14px">
+      <div class="stat">
+        <div class="stat-l">Вложено с 5 ноя 2024</div>
+        <div class="stat-v Y">${N(invested)} zł</div>
+      </div>
+      <div class="stat">
+        <div class="stat-l">Сейчас в портфеле</div>
+        <div class="stat-v G">${N(current)} zł</div>
+      </div>
+      <div class="stat">
+        <div class="stat-l">Прибыль</div>
+        <div class="stat-v ${profit>=0?'G':'R'}">${profit>=0?'+':''}${N(profit)} zł</div>
+        <div class="stat-s">${profitPct.toFixed(1)}% за ${monthsElapsed.toFixed(1)} мес</div>
+      </div>
+      <div class="stat">
+        <div class="stat-l">Годовая доходность</div>
+        <div class="stat-v ${annualReturn>=0?'G':'R'}">${annualReturn.toFixed(1)}%</div>
+        <div class="stat-s">S&P500 ~10%/год</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Прогноз роста портфеля</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:14px">
+        Начало: ${N(current)} zł · Пополнение: ${N(monthly)} zł/мес
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:8px">${chartBars}</div>
+      <div style="display:flex;gap:14px;font-size:11px;color:var(--text2);margin-bottom:16px">
+        <span style="color:var(--blue)">■ 5%/год</span>
+        <span style="color:var(--green)">■ 10%/год</span>
+        <span style="color:var(--yellow)">■ 15%/год</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border)">
+              <th style="text-align:left;padding:8px 12px;color:var(--text3);font-weight:500">Горизонт</th>
+              ${scenarios.map(s=>`<th style="text-align:right;padding:8px 12px;color:${s.color};font-weight:500">${s.name}<br><span style="font-size:10px;opacity:.7">${s.rate.toFixed(1)}%/год</span></th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Когда достигну цели (при 10%/год + ${N(monthly)} zł/мес)</div>
+      <div class="work-row">
+        <span class="work-label">100 000 zł</span>
+        <span class="work-val G">${to100k <= 0 ? '✅ Уже достигнуто!' : `через ~${Math.ceil(to100k/12)} лет (${to100k} мес)`}</span>
+      </div>
+      <div class="work-row">
+        <span class="work-label">500 000 zł (~125 000 €)</span>
+        <span class="work-val Y">через ~${Math.ceil(to500k/12)} лет</span>
+      </div>
+      <div class="work-row">
+        <span class="work-label">1 000 000 zł (~250 000 €)</span>
+        <span class="work-val B">через ~${Math.ceil(to1m/12)} лет</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Калькулятор — изменить параметры</div>
+      <div class="grid2" style="margin-bottom:12px">
+        <div class="inp-group">
+          <div class="inp-label">Текущий портфель (zł)</div>
+          <input type="number" id="calc-principal" class="inp" value="${current}">
+        </div>
+        <div class="inp-group">
+          <div class="inp-label">Ежемесячное пополнение (zł)</div>
+          <input type="number" id="calc-monthly" class="inp" value="${monthly}">
+        </div>
+        <div class="inp-group">
+          <div class="inp-label">Годовая доходность (%)</div>
+          <input type="number" id="calc-rate" class="inp" value="10" step="0.5">
+        </div>
+        <div class="inp-group">
+          <div class="inp-label">Горизонт (лет)</div>
+          <input type="number" id="calc-years" class="inp" value="40">
+        </div>
+      </div>
+      <button class="btn btn-full" onclick="calcProject()">🔢 Рассчитать</button>
+      <div id="calc-result" style="margin-top:14px"></div>
+    </div>
+  `;
+}
+
+function calcProject() {
+  const p = parseFloat(document.getElementById('calc-principal').value)||0;
+  const m = parseFloat(document.getElementById('calc-monthly').value)||0;
+  const r = parseFloat(document.getElementById('calc-rate').value)||10;
+  const y = parseFloat(document.getElementById('calc-years').value)||40;
+
+  function proj(principal, monthly, years, rate) {
+    let total = principal;
+    const mr = rate/100/12;
+    let deposited = principal;
+    for(let i=0;i<years*12;i++){total=total*(1+mr)+monthly; deposited+=monthly;}
+    return {total:Math.round(total), deposited:Math.round(deposited), profit:Math.round(total-deposited)};
+  }
+
+  const {total, deposited, profit} = proj(p, m, y, r);
+  const profitPct = deposited > 0 ? (profit/deposited*100).toFixed(1) : 0;
+
+  document.getElementById('calc-result').innerHTML = `
+    <div class="grid3">
+      <div class="stat"><div class="stat-l">Итоговая сумма</div><div class="stat-v G">${N(total)} zł</div></div>
+      <div class="stat"><div class="stat-l">Из них вложено</div><div class="stat-v Y">${N(deposited)} zł</div></div>
+      <div class="stat"><div class="stat-l">Чистая прибыль</div><div class="stat-v B">+${N(profit)} zł (${profitPct}%)</div></div>
+    </div>`;
 }
 
 async function renderGoals() {
