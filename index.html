@@ -347,21 +347,22 @@ function calcNetto(brutto, ws) {
 }
 
 function monthCalc(cache, ws, y, m) {
-  let totalBrutto = 0, totalNetto = 0, totalExp = 0;
+  let totalBrutto = 0, totalNetto = 0, totalExp = 0, totalManual = 0;
   let h0=0,h20=0,h50=0,h100=0, totalHours=0;
   const filterKey = (y!==undefined && m!==undefined) ? `${y}-${String(m+1).padStart(2,'0')}` : null;
   const entries = filterKey
     ? Object.entries(cache).filter(([k])=>k.startsWith(filterKey)).map(([,v])=>v)
     : Object.values(cache);
   entries.forEach(dd => {
-    const {brutto} = calcDay(dd, ws);
+    const {brutto, manual_netto} = calcDay(dd, ws);
     totalBrutto += brutto;
+    totalManual += (manual_netto||0);
     totalHours += (dd.h0||0)+(dd.h20||0)+(dd.h50||0)+(dd.h100||0);
     h0+=(dd.h0||0); h20+=(dd.h20||0); h50+=(dd.h50||0); h100+=(dd.h100||0);
     (dd.expenses||[]).forEach(e => totalExp += e.amount);
   });
-  totalNetto = calcNetto(totalBrutto, ws) + (totalManual||0);
-  return {totalBrutto, totalNetto, totalManual:totalManual||0, totalExp, totalHours, h0, h20, h50, h100};
+  totalNetto = calcNetto(totalBrutto, ws) + totalManual;
+  return {totalBrutto, totalNetto, totalManual, totalExp, totalHours, h0, h20, h50, h100};
 }
 
 // ── DB ─────────────────────────────────────────────────────────────
