@@ -282,9 +282,9 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 
 <script>
 // ══ CONFIG — ЗАМЕНИ ЭТИ 3 СТРОКИ ══════════════════════════════════
-const SB_URL  = 'https://emqlkygenncocvayhwdu.supabase.co';
-const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcWxreWdlbm5jb2N2YXlod2R1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzExMzEsImV4cCI6MjA5NjI0NzEzMX0.JjA71Sa7x7XyqJGtI1buC-ZGuZ8uZIT43Bjej1nvdn0';
-const BOT_NAME = 'FinanceMonth04bot'; // без @, например: DmytroFinBot
+const SB_URL  = 'ТВОЙ_SUPABASE_URL';
+const SB_KEY  = 'ТВОЙ_SUPABASE_ANON_KEY';
+const BOT_NAME = 'ИМЯ_ТВОЕГО_БОТА'; // без @, например: DmytroFinBot
 // ══════════════════════════════════════════════════════════════════
 
 const sb = supabase.createClient(SB_URL, SB_KEY);
@@ -370,7 +370,14 @@ async function saveDay(dk, dd) {
   },{onConflict:'user_id,date'});
   cache[dk] = dd;
 }
-async function getWS()  { const d=await dbGet('work_settings');  return d?.data || DEF_WS; }
+async function getWS(ym) {
+  if(!ym){ const t=T(); ym=`${t.y}-${String(t.m+1).padStart(2,'0')}`; }
+  const {data} = await sb.from('work_settings').select('*').eq('user_id',CU.id).eq('month',ym).maybeSingle();
+  if(data) return data.data;
+  // fallback to default settings
+  const {data:def} = await sb.from('work_settings').select('*').eq('user_id',CU.id).eq('month','default').maybeSingle();
+  return def?.data || DEF_WS;
+}
 async function getPS()  { const d=await dbGet('plan_settings');  return d?.data || DEF_PS; }
 async function getSV()  { const d=await dbGet('savings');        return d?.data || DEF_SV; }
 async function getDebts() {
@@ -384,13 +391,11 @@ async function getDebts() {
 
 // ── AUTH ───────────────────────────────────────────────────────────
 window.onTgAuth = async function(u) {
-  let {data: found} = await sb.from('users').select('*').eq('tg_id', u.id).maybeSingle();
-  if(found){ CU=found; localStorage.setItem('fin_user',JSON.stringify(CU)); showApp(); return; }
-  const {data: inserted, error} = await sb.from('users')
-    .insert({tg_id:u.id, first_name:u.first_name, username:u.username||''})
+  const {data,error} = await sb.from('users')
+    .upsert({tg_id:u.id, first_name:u.first_name, username:u.username||''},{onConflict:'tg_id'})
     .select().single();
-  if(error){ toast('Ошибка: '+error.message); console.error(error); return; }
-  CU = inserted;
+  if(error){toast('Ошибка входа');return;}
+  CU = data;
   localStorage.setItem('fin_user', JSON.stringify(CU));
   showApp();
 };
@@ -702,14 +707,35 @@ async function renderDebts() {
   document.getElementById('debts-list').innerHTML=debts.map(d=>{
     const rem=d.total-d.received;
     const p=Math.min(100,Math.round(d.received/d.total*100));
-    return`<div class="debt-c">
-      <div class="debt-info">
-        <div class="debt-name">${d.name}</div>
-        <div class="debt-sub">Всего: ${N(d.total)} · Получено: ${N(d.received)} zł</div>
-        <div style="margin-top:8px"><div class="prog-bg"><div class="prog-fill" style="background:var(--green);width:${p}%"></div></div></div>
+    return`<div class="debt-c" style="flex-direction:column;align-items:stretch">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="debt-info">
+          <div class="debt-name">${d.name}</div>
+          <div class="debt-sub">Долг: ${N(d.total)} zł · Получено: ${N(d.received)} zł</div>
+          <div style="margin-top:6px"><div class="prog-bg"><div class="prog-fill" style="background:var(--green);width:${p}%"></div></div></div>
+        </div>
+        <div class="debt-amt" style="${rem<=0?'opacity:.35':''}">+${N(rem)} zł</div>
       </div>
-      <div class="debt-amt" style="${rem<=0?'opacity:.35':''}">+${N(rem)} zł</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px">
+        <div class="inp-group"><div class="inp-label">Сумма долга</div>
+          <input type="number" class="inp" id="dt-${d.id}" value="${d.total}" style="font-size:13px;padding:7px 10px">
+        </div>
+        <div class="inp-group"><div class="inp-label">Получено</div>
+          <input type="number" class="inp" id="dr-${d.id}" value="${d.received}" style="font-size:13px;padding:7px 10px">
+        </div>
+        <div class="inp-group"><div class="inp-label">&nbsp;</div>
+          <button class="btn btn-sm" onclick="updateDebt(${d.id})">💾 Сохранить</button>
+        </div>
+      </div>
     </div>`;}).join('');
+}
+
+async function updateDebt(id) {
+  const total = parseFloat(document.getElementById('dt-'+id).value)||0;
+  const received = parseFloat(document.getElementById('dr-'+id).value)||0;
+  await sb.from('debts').update({total, received}).eq('id',id);
+  renderDebts();
+  toast('✅ Долг обновлён');
 }
 
 async function receiveDebt() {
@@ -735,15 +761,27 @@ async function receiveDebt() {
 async function renderSettings() {
   const ws=await getWS(), ps=await getPS(), sv=await getSV();
   localStorage.setItem('fin_ws', JSON.stringify(ws));
-  document.getElementById('work-settings').innerHTML=[
-    {k:'salary',   l:'Оклад брутто',          s:'базовый месячный оклад (zł)'},
-    {k:'std_hours',l:'Стандартные часы/месяц', s:'обычно 160 ч (8ч × 20 дней)'},
+  const t=T();
+  const monthOpts = Array.from({length:12},(_,i)=>{
+    const y = i <= t.m ? t.y : t.y-1;
+    const m = String(i+1).padStart(2,'0');
+    const ym = `${t.y}-${m}`;
+    return `<option value="${ym}" ${i===t.m?'selected':''}>${MR[i]} ${t.y}</option>`;
+  }).join('');
+
+  document.getElementById('work-settings').innerHTML=`
+  <div class="set-row">
+    <div><div class="set-l">📅 Месяц</div><div class="set-s">настройки применятся к этому месяцу</div></div>
+    <select class="set-inp" id="ws-month" onchange="loadMonthWS(this.value)" style="width:150px">${monthOpts}<option value="default">По умолчанию</option></select>
+  </div>` + [
+    {k:'salary',   l:'Оклад брутто',     s:'месячный оклад (zł)'},
+    {k:'std_hours',l:'Рабочих часов',     s:'стандартная норма этого месяца'},
   ].map(r=>`<div class="set-row">
     <div><div class="set-l">${r.l}</div><div class="set-s">${r.s}</div></div>
     <input type="number" class="set-inp" id="ws-${r.k}" value="${ws[r.k]||0}">
   </div>`).join('')+`
   <div class="set-row">
-    <div><div class="set-l">Ulga dla młodych</div><div class="set-s">0% налог до 26 лет (до 85 528 zł/год)</div></div>
+    <div><div class="set-l">Ulga dla młodych</div><div class="set-s">0% налог до 26 лет</div></div>
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
       <input type="checkbox" id="ws-ulga" ${ws.ulga?'checked':''} style="width:18px;height:18px;accent-color:var(--accent)">
       <span style="font-size:13px;color:var(--text2)">Включена</span>
@@ -761,24 +799,32 @@ async function renderSettings() {
   </div>`).join('');
 
   document.getElementById('sav-settings').innerHTML=[
-    {k:'invest',  l:'📈 Портфель сейчас'},
-    {k:'apt',     l:'🏠 На квартиру сейчас'},
-    {k:'cushion', l:'🛡 Подушка сейчас'},
+    {k:'invest',  l:'📈 Портфель T212 сейчас', s:'обновляй раз в месяц'},
+    {k:'apt',     l:'🏠 На квартиру сейчас',   s:'накоплено zł'},
+    {k:'cushion', l:'🛡 Подушка сейчас',        s:'в zł'},
   ].map(r=>`<div class="set-row">
-    <div class="set-l">${r.l}</div>
+    <div><div class="set-l">${r.l}</div><div class="set-s">${r.s}</div></div>
     <input type="number" class="set-inp" id="sv-${r.k}" value="${sv[r.k]||0}">
   </div>`).join('');
 }
 
+async function loadMonthWS(ym) {
+  const ws = await getWS(ym);
+  document.getElementById('ws-salary').value = ws.salary||7000;
+  document.getElementById('ws-std_hours').value = ws.std_hours||160;
+  document.getElementById('ws-ulga').checked = ws.ulga!==false;
+}
+
 async function saveWS() {
+  const month = document.getElementById('ws-month')?.value || 'default';
   const d={
     salary:parseFloat(document.getElementById('ws-salary').value)||7000,
     std_hours:parseFloat(document.getElementById('ws-std_hours').value)||160,
     ulga:document.getElementById('ws-ulga').checked
   };
-  await dbUpsert('work_settings',{data:d});
+  await sb.from('work_settings').upsert({user_id:CU.id, month, data:d},{onConflict:'user_id,month'});
   localStorage.setItem('fin_ws', JSON.stringify(d));
-  toast('✅ Параметры зарплаты сохранены');
+  toast('✅ Параметры сохранены для ' + (month==='default'?'всех месяцев':month));
 }
 async function savePS() {
   const d={};
