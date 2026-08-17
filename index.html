@@ -170,6 +170,52 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 .toast{position:fixed;bottom:20px;right:20px;background:var(--s3);border:1px solid var(--border2);color:var(--text);padding:11px 18px;border-radius:var(--rs);font-size:13px;transform:translateY(70px);opacity:0;transition:.25s;z-index:9999;max-width:260px;pointer-events:none;}
 .toast.show{transform:translateY(0);opacity:1;}
 
+/* ── FOOD ── */
+.food-goal{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.fg-item{display:flex;flex-direction:column;}
+.fg-item .k{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.fg-item .v{font-size:16px;font-weight:700;letter-spacing:-.01em;}
+.fg-item .v small{color:var(--text2);font-weight:400;font-size:12px;}
+.food-tracker{position:sticky;top:52px;z-index:50;background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);padding:16px;margin-bottom:14px;box-shadow:0 10px 30px -14px rgba(0,0,0,.7);}
+.ft-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.ft-cals b{font-size:26px;font-weight:700;letter-spacing:-.02em;}
+.ft-cals span{color:var(--text3);font-size:14px;}
+.ft-macros{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.ftm .bl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+.ftm .bl .nm{color:var(--text2);}
+.ftm .bl .nu{font-weight:600;}
+.food-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;-ms-overflow-style:none;scrollbar-width:none;}
+.food-tabs::-webkit-scrollbar{display:none;}
+.ftab{flex-shrink:0;padding:8px 14px;border-radius:99px;border:1px solid var(--border);background:var(--s1);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.15s;white-space:nowrap;}
+.ftab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.ftab:hover:not(.on){background:var(--s3);color:var(--text);}
+.shift-row{display:flex;gap:6px;margin-bottom:16px;}
+.shift-btn{flex:1;padding:9px;border-radius:var(--rs);border:1px solid var(--border);background:var(--s1);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.15s;}
+.shift-btn.on{background:rgba(124,106,247,.15);border-color:var(--accent);color:var(--accent2);}
+.meal-block{margin-bottom:18px;}
+.meal-h{font-size:11px;font-weight:600;color:var(--accent3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;gap:8px;align-items:baseline;}
+.meal-h .mt{color:var(--text3);font-size:10px;letter-spacing:.03em;text-transform:none;}
+.fitem{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:7px;background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:.15s;user-select:none;}
+.fitem:active{transform:scale(.995);}
+.fitem.on{background:var(--s2);border-color:rgba(52,211,153,.35);}
+.fitem.on .fn{color:var(--text2);text-decoration:line-through;text-decoration-color:var(--text3);}
+.fcheck{width:22px;height:22px;border-radius:6px;flex-shrink:0;border:2px solid var(--text3);position:relative;transition:.15s;}
+.fitem.on .fcheck{background:var(--green);border-color:var(--green);}
+.fcheck::after{content:'';position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid var(--bg);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) scale(0);transition:.15s;}
+.fitem.on .fcheck::after{transform:rotate(45deg) scale(1);}
+.femoji{font-size:1.4rem;flex-shrink:0;width:28px;text-align:center;}
+.ffood{flex:1;min-width:0;}
+.fn{font-weight:600;font-size:14px;letter-spacing:-.01em;}
+.fsub{font-size:11px;color:var(--text3);margin-top:2px;}
+.fmini{text-align:right;flex-shrink:0;}
+.fmini .fk{font-weight:700;font-size:14px;}
+.fmini .fp{font-size:10px;color:var(--text3);margin-top:1px;}
+.prep-note{margin-top:6px;padding:14px 16px;background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,191,36,.02));border:1px solid rgba(251,191,36,.22);border-radius:var(--rs);}
+.prep-note h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--yellow);margin-bottom:7px;}
+.prep-note p{font-size:13px;color:var(--text2);line-height:1.5;}
+.prep-note p+p{margin-top:6px;}
+.prep-note b{color:var(--text);}
+
 @media(max-width:500px){
   .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr;}
   .cal-day{font-size:11px;}
@@ -202,6 +248,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
       <button class="nb"     onclick="nav('goals',this)">🎯 Цели</button>
       <button class="nb"     onclick="nav('invest',this)">📈 Инвестиции</button>
       <button class="nb"     onclick="nav('debts',this)">💸 Долги</button>
+      <button class="nb"     onclick="nav('food',this)">🍽 Питание</button>
       <button class="nb"     onclick="nav('settings',this)">⚙️ Настройки</button>
     </div>
     <div class="user-chip">
@@ -277,6 +324,11 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
       </div>
       <button class="btn btn-full" onclick="receiveDebt()">✅ Записать получение</button>
     </div>
+  </div>
+
+  <!-- ── FOOD ── -->
+  <div id="page-food" class="page">
+    <div id="food-body"><div class="spin-wrap"><div class="spinner"></div></div></div>
   </div>
 
   <!-- ── SETTINGS ── -->
@@ -454,6 +506,7 @@ function nav(pg, btn) {
   if(pg==='invest') renderInvest();
   if(pg==='alltime') renderAllTime();
   if(pg==='debts') renderDebts();
+  if(pg==='food') renderFood();
   if(pg==='settings') renderSettings();
 }
 
@@ -800,7 +853,6 @@ async function renderAllTime() {
     </div>`).join('')}`;
 }
 
-
 async function renderInvest() {
   const sv = await getSavings ? getSV() : {invest:18689};
   const ps = await getPS();
@@ -1084,6 +1136,258 @@ async function receiveDebt() {
   document.getElementById('debt-amt-inp').value='';
   renderDebts();
   toast(`✅ +${N(amt)} zł → квартира`);
+}
+
+// ══ FOOD / ПИТАНИЕ ═════════════════════════════════════════════════
+// Цель: 186 см, 66-68 кг, лёгкий профицит на набор 2-3 кг сухих мышц
+const FOOD_GOAL = { kcal:2900, p:140, c:320, f:90 };
+
+// Меню под предпочтения: яичница + варёные яйца, спагетти с мясным
+// соусом (не простые макароны), гречка+рис, только куриное мясо,
+// воловые котлеты для бургеров, блинчики. Без арахисовой пасты.
+// Готовка партиями на 3 дня (День 1 и День 4 — дни готовки).
+const FOOD_DAYS = {
+  "День 1": { cook:true, meals:[
+    { g:"Завтрак", t:"после подъёма", items:[
+      { e:"🍳", n:"Яичница из 4 яиц", s:"на масле, соль/перец", k:400, p:26, c:2, f:32 },
+      { e:"🍞", n:"Хлеб цельнозерновой", s:"2 куска", k:160, p:8, c:30, f:2 },
+      { e:"🥛", n:"Молоко", s:"стакан 250 мл", k:120, p:8, c:12, f:5 },
+    ]},
+    { g:"Перекус", t:"середина смены", items:[
+      { e:"🥣", n:"Творог", s:"200 г", k:180, p:32, c:8, f:3 },
+      { e:"🍌", n:"Банан", s:"1 шт", k:105, p:1, c:27, f:0 },
+    ]},
+    { g:"Обед", t:"готовим на 3 дня", items:[
+      { e:"🍗", n:"Куриная грудка", s:"200 г готовой", k:330, p:62, c:0, f:8 },
+      { e:"🍚", n:"Рис", s:"1.5 пакета / ~200 г", k:260, p:5, c:56, f:1 },
+      { e:"🥒", n:"Овощи (огурец/помидор/морковь)", s:"тарелка", k:60, p:2, c:12, f:1 },
+    ]},
+    { g:"Ужин", t:"после работы", items:[
+      { e:"🐟", n:"Тунец в собств. соку", s:"1 банка", k:130, p:28, c:0, f:2 },
+      { e:"🥔", n:"Гречка", s:"1.5 пакета / ~200 г", k:220, p:8, c:45, f:2 },
+      { e:"🍫", n:"Тёмный шоколад / орехи", s:"перекус", k:150, p:3, c:12, f:10 },
+    ]},
+  ]},
+  "День 2": { cook:false, meals:[
+    { g:"Завтрак", t:"после подъёма", items:[
+      { e:"🥣", n:"Овсянка на молоке", s:"60 г хлопьев + мёд", k:350, p:12, c:55, f:8 },
+      { e:"🍌", n:"Банан в овсянку", s:"1 шт", k:105, p:1, c:27, f:0 },
+    ]},
+    { g:"Перекус", t:"середина смены", items:[
+      { e:"🥚", n:"Варёные яйца", s:"2 шт", k:155, p:13, c:1, f:11 },
+      { e:"🥛", n:"Творог", s:"200 г", k:180, p:32, c:8, f:3 },
+    ]},
+    { g:"Обед", t:"разогрев со Дня 1", items:[
+      { e:"🍗", n:"Куриная грудка", s:"200 г", k:330, p:62, c:0, f:8 },
+      { e:"🥔", n:"Гречка", s:"~200 г", k:220, p:8, c:45, f:2 },
+      { e:"🥒", n:"Овощи", s:"тарелка", k:60, p:2, c:12, f:1 },
+    ]},
+    { g:"Ужин", t:"после работы", items:[
+      { e:"🍝", n:"Спагетти с мясным соусом", s:"100 г сухих + куриный фарш + томат", k:520, p:34, c:62, f:14 },
+      { e:"🍫", n:"Тёмный шоколад", s:"пара долек", k:120, p:2, c:11, f:8 },
+    ]},
+  ]},
+  "День 3": { cook:false, meals:[
+    { g:"Завтрак", t:"после подъёма", items:[
+      { e:"🍳", n:"Яичница из 4 яиц", s:"на масле", k:400, p:26, c:2, f:32 },
+      { e:"🍞", n:"Хлеб", s:"2 куска", k:160, p:8, c:30, f:2 },
+    ]},
+    { g:"Перекус", t:"середина смены", items:[
+      { e:"🥣", n:"Творог", s:"200 г", k:180, p:32, c:8, f:3 },
+      { e:"🍌", n:"Банан", s:"1 шт", k:105, p:1, c:27, f:0 },
+    ]},
+    { g:"Обед", t:"разогрев со Дня 1", items:[
+      { e:"🍗", n:"Куриная грудка", s:"200 г", k:330, p:62, c:0, f:8 },
+      { e:"🍚", n:"Рис", s:"~200 г", k:260, p:5, c:56, f:1 },
+      { e:"🥒", n:"Овощи", s:"тарелка", k:60, p:2, c:12, f:1 },
+    ]},
+    { g:"Ужин", t:"день бургера", items:[
+      { e:"🍔", n:"Бургер: воловая котлета", s:"домашний, ~150 г мяса", k:450, p:34, c:30, f:22 },
+      { e:"🥗", n:"Овощи в бургер", s:"салат/помидор/лук", k:40, p:1, c:8, f:0 },
+    ]},
+  ]},
+  "День 4 · блины": { cook:true, meals:[
+    { g:"Завтрак", t:"выходной / готовим партию", items:[
+      { e:"🥞", n:"Блинчики", s:"3-4 шт на молоке+яйцо", k:380, p:14, c:52, f:12 },
+      { e:"🍯", n:"Мёд / джем к блинам", s:"ложка", k:90, p:0, c:22, f:0 },
+      { e:"🥣", n:"Творог в начинку", s:"150 г", k:135, p:24, c:6, f:2 },
+    ]},
+    { g:"Перекус", t:"середина дня", items:[
+      { e:"🥚", n:"Варёные яйца", s:"2 шт", k:155, p:13, c:1, f:11 },
+      { e:"🍌", n:"Банан", s:"1 шт", k:105, p:1, c:27, f:0 },
+    ]},
+    { g:"Обед", t:"готовим на 3 дня", items:[
+      { e:"🍗", n:"Куриная грудка", s:"200 г", k:330, p:62, c:0, f:8 },
+      { e:"🍚", n:"Рис", s:"~200 г", k:260, p:5, c:56, f:1 },
+      { e:"🥒", n:"Овощи", s:"тарелка", k:60, p:2, c:12, f:1 },
+    ]},
+    { g:"Ужин", t:"вечер", items:[
+      { e:"🐟", n:"Тунец", s:"1 банка", k:130, p:28, c:0, f:2 },
+      { e:"🥔", n:"Гречка", s:"~200 г", k:220, p:8, c:45, f:2 },
+      { e:"🍫", n:"Шоколад / орехи", s:"перекус", k:150, p:3, c:12, f:10 },
+    ]},
+  ]},
+};
+const FOOD_DAY_KEYS = Object.keys(FOOD_DAYS);
+const TRAIN_DAYS = [2,4,0]; // вт, чт, вс — дни зала
+
+let foodTab = FOOD_DAY_KEYS[0];
+let foodShift = 'day'; // day | night | off
+let foodChecked = {}; // ключи галочек за СЕГОДНЯ, грузятся из food_log
+
+const foodDateKey = () => { const t=T(); return DK(t.y,t.m,t.d); };
+
+// Загрузка отметок за сегодня из Supabase
+async function loadFoodToday() {
+  foodChecked = {};
+  const dk = foodDateKey();
+  const {data} = await sb.from('food_log').select('*').eq('user_id',CU.id).eq('date',dk).maybeSingle();
+  if(data){
+    foodTab = data.day_template || FOOD_DAY_KEYS[0];
+    foodShift = data.shift_type || 'day';
+    foodChecked = data.checked || {};
+  }
+}
+
+async function saveFoodToday() {
+  const dk = foodDateKey();
+  const totals = foodTotals();
+  await sb.from('food_log').upsert({
+    user_id:CU.id, date:dk,
+    day_template:foodTab, shift_type:foodShift,
+    checked:foodChecked,
+    kcal:totals.k, protein:totals.p, carbs:totals.c, fat:totals.f
+  },{onConflict:'user_id,date'});
+}
+
+function foodTotals() {
+  let t={k:0,p:0,c:0,f:0};
+  const day=FOOD_DAYS[foodTab];
+  day.meals.forEach(m=>m.items.forEach((it,i)=>{
+    if(foodChecked[`${m.g}|${i}`]){ t.k+=it.k; t.p+=it.p; t.c+=it.c; t.f+=it.f; }
+  }));
+  return t;
+}
+
+async function toggleFood(key) {
+  foodChecked[key]=!foodChecked[key];
+  await saveFoodToday();
+  renderFood();
+}
+
+async function setFoodTab(tab) {
+  foodTab=tab; foodChecked={}; // при смене шаблона отметки сбрасываются
+  await saveFoodToday();
+  renderFood();
+}
+
+async function setFoodShift(sh) {
+  foodShift=sh;
+  await saveFoodToday();
+  renderFood();
+}
+
+async function foodMarkAll() {
+  const day=FOOD_DAYS[foodTab];
+  day.meals.forEach(m=>m.items.forEach((_,i)=>{ foodChecked[`${m.g}|${i}`]=true; }));
+  await saveFoodToday();
+  renderFood();
+}
+
+async function foodClear() {
+  foodChecked={};
+  await saveFoodToday();
+  renderFood();
+}
+
+let foodLoaded=false;
+async function renderFood() {
+  if(!foodLoaded){ await loadFoodToday(); foodLoaded=true; }
+  const day=FOOD_DAYS[foodTab];
+  const t=foodTotals();
+  const pct=(v,g)=>Math.min(100,Math.round(v/g*100));
+  const todayDow=new Date().getDay();
+  const isTrainDay=TRAIN_DAYS.includes(todayDow);
+
+  const tabs=FOOD_DAY_KEYS.map(k=>`<div class="ftab${k===foodTab?' on':''}" onclick="setFoodTab('${k}')">${k}</div>`).join('');
+
+  const shifts=[
+    {k:'day',l:'☀️ Смена 6–18'},
+    {k:'night',l:'🌙 Смена 18–6'},
+    {k:'off',l:'🏠 Выходной'},
+  ].map(s=>`<button class="shift-btn${s.k===foodShift?' on':''}" onclick="setFoodShift('${s.k}')">${s.l}</button>`).join('');
+
+  const meals=day.meals.map(m=>{
+    const items=m.items.map((it,i)=>{
+      const on=!!foodChecked[`${m.g}|${i}`];
+      return `<div class="fitem${on?' on':''}" onclick="toggleFood('${m.g}|${i}')">
+        <div class="fcheck"></div>
+        <div class="femoji">${it.e}</div>
+        <div class="ffood"><div class="fn">${it.n}</div><div class="fsub">${it.s}</div></div>
+        <div class="fmini"><div class="fk">${it.k}</div><div class="fp">Б${it.p} У${it.c} Ж${it.f}</div></div>
+      </div>`;
+    }).join('');
+    return `<div class="meal-block">
+      <div class="meal-h">${m.g} <span class="mt">· ${m.t}</span></div>
+      ${items}
+    </div>`;
+  }).join('');
+
+  document.getElementById('food-body').innerHTML=`
+    <div class="food-goal">
+      <div class="fg-item"><span class="k">Цель</span><span class="v">Форма атлета <small>67→70 кг</small></span></div>
+      <div class="fg-item"><span class="k">Норма</span><span class="v">${FOOD_GOAL.kcal} <small>ккал</small></span></div>
+      <div class="fg-item"><span class="k">Белок</span><span class="v">${FOOD_GOAL.p} <small>г</small></span></div>
+      ${isTrainDay?`<div class="fg-item"><span class="k">Сегодня</span><span class="v" style="color:var(--accent2)">💪 День зала</span></div>`:''}
+    </div>
+
+    <div class="food-tracker">
+      <div class="ft-top">
+        <div class="ft-cals"><b class="${t.k>=FOOD_GOAL.kcal?'G':''}">${t.k}</b> <span>/ ${FOOD_GOAL.kcal} ккал</span></div>
+        <span class="tag tag-g">${pct(t.k,FOOD_GOAL.kcal)}%</span>
+      </div>
+      <div class="ft-macros">
+        <div class="ftm">
+          <div class="bl"><span class="nm">Белки</span><span class="nu">${t.p}/${FOOD_GOAL.p}г</span></div>
+          <div class="prog-bg"><div class="prog-fill" style="background:var(--blue);width:${pct(t.p,FOOD_GOAL.p)}%"></div></div>
+        </div>
+        <div class="ftm">
+          <div class="bl"><span class="nm">Углеводы</span><span class="nu">${t.c}/${FOOD_GOAL.c}г</span></div>
+          <div class="prog-bg"><div class="prog-fill" style="background:var(--yellow);width:${pct(t.c,FOOD_GOAL.c)}%"></div></div>
+        </div>
+        <div class="ftm">
+          <div class="bl"><span class="nm">Жиры</span><span class="nu">${t.f}/${FOOD_GOAL.f}г</span></div>
+          <div class="prog-bg"><div class="prog-fill" style="background:var(--orange);width:${pct(t.f,FOOD_GOAL.f)}%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="shift-row">${shifts}</div>
+    <div class="food-tabs">${tabs}</div>
+
+    ${meals}
+
+    <div style="display:flex;gap:10px;margin-top:6px">
+      <button class="btn btn-full btn-ghost" onclick="foodClear()">Сбросить день</button>
+      <button class="btn btn-full" onclick="foodMarkAll()">Отметить всё</button>
+    </div>
+
+    ${day.cook?`<div class="prep-note">
+      <h4>🍳 Готовка на 3 дня</h4>
+      <p><b>Свари сразу:</b> курицу (6 грудок), рис и гречку большими партиями, разложи по контейнерам — хватит на обед и ужин 3 дня.</p>
+      <p><b>Свежим в день еды:</b> куриный фарш для спагетти и воловые котлеты для бургеров — жарить 10 мин.</p>
+    </div>`:''}
+
+    ${isTrainDay?`<div class="prep-note" style="border-color:rgba(124,106,247,.25);background:linear-gradient(135deg,rgba(124,106,247,.08),rgba(124,106,247,.02))">
+      <h4 style="color:var(--accent2)">💪 День тренировки</h4>
+      <p>Добавь лишнюю порцию риса к обеду — углеводы под нагрузку. После зала не забудь белок (творог или курица).</p>
+    </div>`:''}
+
+    <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--text3);line-height:1.6">
+      Норма 2900 ккал / 140 г белка — лёгкий профицит на набор мышц.<br>
+      Зал: вт / чт / вс. Отметки сохраняются по дате.
+    </div>
+  `;
 }
 
 // ── SETTINGS ───────────────────────────────────────────────────────
