@@ -163,7 +163,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 .spinner{width:18px;height:18px;border:2px solid var(--s3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── TOAST ── */
+/* ── TOAST + MONTH TABS ── */
 .month-tab{padding:6px 14px;border-radius:99px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-size:12px;font-family:inherit;transition:.15s;white-space:nowrap;}
 .month-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
 .month-tab:hover:not(.active){background:var(--s3);color:var(--text);}
@@ -184,48 +184,70 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 .ftm .bl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
 .ftm .bl .nm{color:var(--text2);}
 .ftm .bl .nu{font-weight:600;}
-.food-tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px;padding-bottom:4px;-ms-overflow-style:none;scrollbar-width:none;}
-.food-tabs::-webkit-scrollbar{display:none;}
-.ftab{flex-shrink:0;padding:8px 14px;border-radius:99px;border:1px solid var(--border);background:var(--s1);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.15s;white-space:nowrap;}
-.ftab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
-.ftab:hover:not(.on){background:var(--s3);color:var(--text);}
-.shift-row{display:flex;gap:6px;margin-bottom:16px;}
-.shift-btn{flex:1;padding:9px;border-radius:var(--rs);border:1px solid var(--border);background:var(--s1);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.15s;}
-.shift-btn.on{background:rgba(124,106,247,.15);border-color:var(--accent);color:var(--accent2);}
-.meal-block{margin-bottom:18px;}
-.meal-h{font-size:11px;font-weight:600;color:var(--accent3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;gap:8px;align-items:baseline;}
-.meal-h .mt{color:var(--text3);font-size:10px;letter-spacing:.03em;text-transform:none;}
-.fitem{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:7px;background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:.15s;user-select:none;}
-.fitem:active{transform:scale(.995);}
-.fitem.on{background:var(--s2);border-color:rgba(52,211,153,.35);}
-.fitem.on .fn{color:var(--text2);text-decoration:line-through;text-decoration-color:var(--text3);}
-.fcheck{width:22px;height:22px;border-radius:6px;flex-shrink:0;border:2px solid var(--text3);position:relative;transition:.15s;}
-.fitem.on .fcheck{background:var(--green);border-color:var(--green);}
-.fcheck::after{content:'';position:absolute;left:6px;top:2px;width:5px;height:10px;border:solid var(--bg);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) scale(0);transition:.15s;}
-.fitem.on .fcheck::after{transform:rotate(45deg) scale(1);}
-.femoji{font-size:1.4rem;flex-shrink:0;width:28px;text-align:center;}
+
+/* food row with grams input */
+.frow{display:flex;align-items:center;gap:11px;padding:11px 13px;margin-bottom:7px;background:var(--s1);border:1px solid var(--border);border-radius:var(--rs);transition:.15s;}
+.frow.used{border-color:rgba(52,211,153,.3);background:var(--s2);}
+.femoji{font-size:1.35rem;flex-shrink:0;width:26px;text-align:center;}
 .ffood{flex:1;min-width:0;}
 .fn{font-weight:600;font-size:14px;letter-spacing:-.01em;}
-.fsub{font-size:11px;color:var(--text3);margin-top:2px;}
-.fmini{text-align:right;flex-shrink:0;}
-.fmini .fk{font-weight:700;font-size:14px;}
-.fmini .fp{font-size:10px;color:var(--text3);margin-top:1px;}
-.prep-note{margin-top:6px;padding:14px 16px;background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,191,36,.02));border:1px solid rgba(251,191,36,.22);border-radius:var(--rs);}
-.prep-note h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--yellow);margin-bottom:7px;}
+.fsub{font-size:10.5px;color:var(--text3);margin-top:2px;}
+.fgram{width:74px;flex-shrink:0;}
+.fgram input{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:6px;padding:7px 8px;color:var(--text);font-family:inherit;font-size:14px;text-align:right;outline:none;transition:.15s;}
+.fgram input:focus{border-color:var(--accent);}
+.fgram .unit{font-size:9px;color:var(--text3);text-align:right;margin-top:2px;}
+.fkcal{width:52px;flex-shrink:0;text-align:right;}
+.fkcal .kk{font-weight:700;font-size:13px;}
+.fkcal.zero .kk{color:var(--text3);}
+.fdel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:2px 4px;flex-shrink:0;}
+.fdel:hover{color:var(--red);}
+.meal-block{margin-bottom:18px;}
+.meal-h{font-size:11px;font-weight:600;color:var(--accent3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.add-food{display:flex;gap:7px;margin-top:8px;}
+.add-food select{flex:1;background:var(--s2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-family:inherit;font-size:12px;outline:none;}
+.prep-note{margin-top:6px;padding:14px 16px;background:linear-gradient(135deg,rgba(124,106,247,.08),rgba(124,106,247,.02));border:1px solid rgba(124,106,247,.22);border-radius:var(--rs);}
+.prep-note h4{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent2);margin-bottom:7px;}
 .prep-note p{font-size:13px;color:var(--text2);line-height:1.5;}
-.prep-note p+p{margin-top:6px;}
-.prep-note b{color:var(--text);}
+
+/* ── TRAINING ── */
+.tr-tabs{display:flex;gap:6px;margin-bottom:16px;}
+.tr-tab{flex:1;padding:11px;border-radius:var(--rs);border:1px solid var(--border);background:var(--s1);color:var(--text2);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.15s;text-align:center;}
+.tr-tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.tr-tab:hover:not(.on){background:var(--s3);color:var(--text);}
+.tr-tab .sub{font-size:9px;font-weight:400;opacity:.7;display:block;margin-top:2px;text-transform:none;}
+.ex{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px 15px;margin-bottom:9px;transition:.15s;}
+.ex.done{border-color:rgba(52,211,153,.35);background:var(--s2);}
+.ex-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.ex-check{width:24px;height:24px;border-radius:7px;flex-shrink:0;border:2px solid var(--text3);position:relative;transition:.15s;cursor:pointer;}
+.ex.done .ex-check{background:var(--green);border-color:var(--green);}
+.ex-check::after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid var(--bg);border-width:0 2.5px 2.5px 0;transform:rotate(45deg) scale(0);transition:.15s;}
+.ex.done .ex-check::after{transform:rotate(45deg) scale(1);}
+.ex-name{flex:1;font-weight:600;font-size:14.5px;letter-spacing:-.01em;}
+.ex.done .ex-name{color:var(--text2);}
+.ex-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:3px 5px;flex-shrink:0;}
+.ex-del:hover{color:var(--red);}
+.ex-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.ex-f{display:flex;flex-direction:column;gap:4px;}
+.ex-f label{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;text-align:center;}
+.ex-f input{background:var(--s3);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-family:inherit;font-size:15px;font-weight:600;text-align:center;outline:none;transition:.15s;}
+.ex-f input:focus{border-color:var(--accent);}
+.tr-summary{background:var(--s2);border:1px solid var(--border2);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;display:flex;gap:20px;flex-wrap:wrap;position:sticky;top:52px;z-index:50;box-shadow:0 10px 30px -14px rgba(0,0,0,.7);}
+.trs-item{display:flex;flex-direction:column;}
+.trs-item .k{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;}
+.trs-item .v{font-size:18px;font-weight:700;}
 
 @media(max-width:500px){
   .grid2,.grid3,.grid4{grid-template-columns:1fr 1fr;}
   .cal-day{font-size:11px;}
   .page{padding:14px 12px 40px;}
+  .frow{gap:8px;padding:10px;}
+  .fgram{width:64px;}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══════════════════════════════════════════════════════ -->
+<!-- ══ LOGIN ══ -->
 <div id="login-screen">
   <div class="login-icon">💰</div>
   <div class="login-title">Finance Tracker</div>
@@ -236,7 +258,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
   </div>
 </div>
 
-<!-- ══ APP ════════════════════════════════════════════════════════ -->
+<!-- ══ APP ══ -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-brand">💰 Finance</div>
@@ -249,6 +271,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
       <button class="nb"     onclick="nav('invest',this)">📈 Инвестиции</button>
       <button class="nb"     onclick="nav('debts',this)">💸 Долги</button>
       <button class="nb"     onclick="nav('food',this)">🍽 Питание</button>
+      <button class="nb"     onclick="nav('training',this)">💪 Тренировки</button>
       <button class="nb"     onclick="nav('settings',this)">⚙️ Настройки</button>
     </div>
     <div class="user-chip">
@@ -257,7 +280,7 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
     </div>
   </div>
 
-  <!-- ── CALENDAR ── -->
+  <!-- CALENDAR -->
   <div id="page-calendar" class="page on">
     <div class="card">
       <div class="cal-head">
@@ -281,32 +304,13 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
     </div>
   </div>
 
-  <!-- ── MONTH ── -->
-  <div id="page-month" class="page">
-    <div id="month-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
-  </div>
+  <div id="page-month" class="page"><div id="month-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div></div>
+  <div id="page-invest" class="page"><div id="invest-body"></div></div>
+  <div id="page-year" class="page"><div id="year-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div></div>
+  <div id="page-alltime" class="page"><div id="alltime-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div></div>
+  <div id="page-goals" class="page"><div id="goals-body"><div class="spin-wrap"><div class="spinner"></div></div></div></div>
 
-  <!-- ── INVEST ── -->
-  <div id="page-invest" class="page">
-    <div id="invest-body"></div>
-  </div>
-
-  <!-- ── YEAR ── -->
-  <div id="page-year" class="page">
-    <div id="year-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
-  </div>
-
-  <!-- ── ALLTIME ── -->
-  <div id="page-alltime" class="page">
-    <div id="alltime-body"><div class="spin-wrap"><div class="spinner"></div> Загрузка...</div></div>
-  </div>
-
-  <!-- ── GOALS ── -->
-  <div id="page-goals" class="page">
-    <div id="goals-body"><div class="spin-wrap"><div class="spinner"></div></div></div>
-  </div>
-
-  <!-- ── DEBTS ── -->
+  <!-- DEBTS -->
   <div id="page-debts" class="page">
     <div class="card">
       <div class="card-title">Кто должен</div>
@@ -326,12 +330,13 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
     </div>
   </div>
 
-  <!-- ── FOOD ── -->
-  <div id="page-food" class="page">
-    <div id="food-body"><div class="spin-wrap"><div class="spinner"></div></div></div>
-  </div>
+  <!-- FOOD -->
+  <div id="page-food" class="page"><div id="food-body"><div class="spin-wrap"><div class="spinner"></div></div></div></div>
 
-  <!-- ── SETTINGS ── -->
+  <!-- TRAINING -->
+  <div id="page-training" class="page"><div id="training-body"><div class="spin-wrap"><div class="spinner"></div></div></div></div>
+
+  <!-- SETTINGS -->
   <div id="page-settings" class="page">
     <div class="card">
       <div class="card-title">Параметры расчёта зарплаты</div>
@@ -352,7 +357,6 @@ body{background:var(--bg);color:var(--text);font-family:'Geologica',sans-serif;m
 </div>
 
 <div class="toast" id="toast"></div>
-
 <script>
 // ══ CONFIG — ЗАМЕНИ ЭТИ 3 СТРОКИ ══════════════════════════════════
 const SB_URL  = 'https://emqlkygenncocvayhwdu.supabase.co';
@@ -507,6 +511,7 @@ function nav(pg, btn) {
   if(pg==='alltime') renderAllTime();
   if(pg==='debts') renderDebts();
   if(pg==='food') renderFood();
+  if(pg==='training') renderTraining();
   if(pg==='settings') renderSettings();
 }
 
@@ -1138,258 +1143,408 @@ async function receiveDebt() {
   toast(`✅ +${N(amt)} zł → квартира`);
 }
 
-// ══ FOOD / ПИТАНИЕ ═════════════════════════════════════════════════
-// Цель: 186 см, 66-68 кг, лёгкий профицит на набор 2-3 кг сухих мышц
+
+// ══ FOOD / ПИТАНИЕ (весь месяц, ввод грамм) ════════════════════════
+// Цель: 186 см, 66-68 кг, лёгкий профицит на 2-3 кг сухих мышц
 const FOOD_GOAL = { kcal:2900, p:140, c:320, f:90 };
 
-// Меню под предпочтения: яичница + варёные яйца, спагетти с мясным
-// соусом (не простые макароны), гречка+рис, только куриное мясо,
-// воловые котлеты для бургеров, блинчики. Без арахисовой пасты.
-// Готовка партиями на 3 дня (День 1 и День 4 — дни готовки).
-const FOOD_DAYS = {
-  "День 1": { cook:true, meals:[
-    { g:"Завтрак", t:"после подъёма", items:[
-      { e:"🍳", n:"Яичница из 4 яиц", s:"на масле, соль/перец", k:400, p:26, c:2, f:32 },
-      { e:"🍞", n:"Хлеб цельнозерновой", s:"2 куска", k:160, p:8, c:30, f:2 },
-      { e:"🥛", n:"Молоко", s:"стакан 250 мл", k:120, p:8, c:12, f:5 },
-    ]},
-    { g:"Перекус", t:"середина смены", items:[
-      { e:"🥣", n:"Творог", s:"200 г", k:180, p:32, c:8, f:3 },
-      { e:"🍌", n:"Банан", s:"1 шт", k:105, p:1, c:27, f:0 },
-    ]},
-    { g:"Обед", t:"готовим на 3 дня", items:[
-      { e:"🍗", n:"Куриная грудка", s:"200 г готовой", k:330, p:62, c:0, f:8 },
-      { e:"🍚", n:"Рис", s:"1.5 пакета / ~200 г", k:260, p:5, c:56, f:1 },
-      { e:"🥒", n:"Овощи (огурец/помидор/морковь)", s:"тарелка", k:60, p:2, c:12, f:1 },
-    ]},
-    { g:"Ужин", t:"после работы", items:[
-      { e:"🐟", n:"Тунец в собств. соку", s:"1 банка", k:130, p:28, c:0, f:2 },
-      { e:"🥔", n:"Гречка", s:"1.5 пакета / ~200 г", k:220, p:8, c:45, f:2 },
-      { e:"🍫", n:"Тёмный шоколад / орехи", s:"перекус", k:150, p:3, c:12, f:10 },
-    ]},
-  ]},
-  "День 2": { cook:false, meals:[
-    { g:"Завтрак", t:"после подъёма", items:[
-      { e:"🥣", n:"Овсянка на молоке", s:"60 г хлопьев + мёд", k:350, p:12, c:55, f:8 },
-      { e:"🍌", n:"Банан в овсянку", s:"1 шт", k:105, p:1, c:27, f:0 },
-    ]},
-    { g:"Перекус", t:"середина смены", items:[
-      { e:"🥚", n:"Варёные яйца", s:"2 шт", k:155, p:13, c:1, f:11 },
-      { e:"🥛", n:"Творог", s:"200 г", k:180, p:32, c:8, f:3 },
-    ]},
-    { g:"Обед", t:"разогрев со Дня 1", items:[
-      { e:"🍗", n:"Куриная грудка", s:"200 г", k:330, p:62, c:0, f:8 },
-      { e:"🥔", n:"Гречка", s:"~200 г", k:220, p:8, c:45, f:2 },
-      { e:"🥒", n:"Овощи", s:"тарелка", k:60, p:2, c:12, f:1 },
-    ]},
-    { g:"Ужин", t:"после работы", items:[
-      { e:"🍝", n:"Спагетти с мясным соусом", s:"100 г сухих + куриный фарш + томат", k:520, p:34, c:62, f:14 },
-      { e:"🍫", n:"Тёмный шоколад", s:"пара долек", k:120, p:2, c:11, f:8 },
-    ]},
-  ]},
-  "День 3": { cook:false, meals:[
-    { g:"Завтрак", t:"после подъёма", items:[
-      { e:"🍳", n:"Яичница из 4 яиц", s:"на масле", k:400, p:26, c:2, f:32 },
-      { e:"🍞", n:"Хлеб", s:"2 куска", k:160, p:8, c:30, f:2 },
-    ]},
-    { g:"Перекус", t:"середина смены", items:[
-      { e:"🥣", n:"Творог", s:"200 г", k:180, p:32, c:8, f:3 },
-      { e:"🍌", n:"Банан", s:"1 шт", k:105, p:1, c:27, f:0 },
-    ]},
-    { g:"Обед", t:"разогрев со Дня 1", items:[
-      { e:"🍗", n:"Куриная грудка", s:"200 г", k:330, p:62, c:0, f:8 },
-      { e:"🍚", n:"Рис", s:"~200 г", k:260, p:5, c:56, f:1 },
-      { e:"🥒", n:"Овощи", s:"тарелка", k:60, p:2, c:12, f:1 },
-    ]},
-    { g:"Ужин", t:"день бургера", items:[
-      { e:"🍔", n:"Бургер: воловая котлета", s:"домашний, ~150 г мяса", k:450, p:34, c:30, f:22 },
-      { e:"🥗", n:"Овощи в бургер", s:"салат/помидор/лук", k:40, p:1, c:8, f:0 },
-    ]},
-  ]},
-  "День 4 · блины": { cook:true, meals:[
-    { g:"Завтрак", t:"выходной / готовим партию", items:[
-      { e:"🥞", n:"Блинчики", s:"3-4 шт на молоке+яйцо", k:380, p:14, c:52, f:12 },
-      { e:"🍯", n:"Мёд / джем к блинам", s:"ложка", k:90, p:0, c:22, f:0 },
-      { e:"🥣", n:"Творог в начинку", s:"150 г", k:135, p:24, c:6, f:2 },
-    ]},
-    { g:"Перекус", t:"середина дня", items:[
-      { e:"🥚", n:"Варёные яйца", s:"2 шт", k:155, p:13, c:1, f:11 },
-      { e:"🍌", n:"Банан", s:"1 шт", k:105, p:1, c:27, f:0 },
-    ]},
-    { g:"Обед", t:"готовим на 3 дня", items:[
-      { e:"🍗", n:"Куриная грудка", s:"200 г", k:330, p:62, c:0, f:8 },
-      { e:"🍚", n:"Рис", s:"~200 г", k:260, p:5, c:56, f:1 },
-      { e:"🥒", n:"Овощи", s:"тарелка", k:60, p:2, c:12, f:1 },
-    ]},
-    { g:"Ужин", t:"вечер", items:[
-      { e:"🐟", n:"Тунец", s:"1 банка", k:130, p:28, c:0, f:2 },
-      { e:"🥔", n:"Гречка", s:"~200 г", k:220, p:8, c:45, f:2 },
-      { e:"🍫", n:"Шоколад / орехи", s:"перекус", k:150, p:3, c:12, f:10 },
-    ]},
-  ]},
-};
-const FOOD_DAY_KEYS = Object.keys(FOOD_DAYS);
-const TRAIN_DAYS = [2,4,0]; // вт, чт, вс — дни зала
+// Справочник продуктов. КБЖУ на 100 г (или на 1 шт где unit:'шт').
+// id — стабильный ключ для хранения. Порядок = порядок в выпадашке.
+const FOOD_DB = [
+  { id:'egg_fry',   e:'🍳', n:'Яичница',              unit:'шт',  per:1,   k:90,  p:6.3, c:0.5, f:7   },
+  { id:'egg_boil',  e:'🥚', n:'Варёные яйца',          unit:'шт',  per:1,   k:78,  p:6.3, c:0.6, f:5.3 },
+  { id:'chicken',   e:'🍗', n:'Куриная грудка',        unit:'г',   per:100, k:165, p:31,  c:0,   f:3.6 },
+  { id:'mince',     e:'🥩', n:'Куриный фарш',          unit:'г',   per:100, k:143, p:17,  c:0,   f:8   },
+  { id:'beef_patty',e:'🍔', n:'Воловая котлета (фарш)',unit:'г',   per:100, k:250, p:26,  c:0,   f:17  },
+  { id:'tuna',      e:'🐟', n:'Тунец в собств. соку',  unit:'г',   per:100, k:116, p:26,  c:0,   f:1   },
+  { id:'tvorog',    e:'🥣', n:'Творог',                unit:'г',   per:100, k:98,  p:18,  c:3.3, f:2   },
+  { id:'rice',      e:'🍚', n:'Рис (готовый)',         unit:'г',   per:100, k:130, p:2.7, c:28,  f:0.3 },
+  { id:'grechka',   e:'🥔', n:'Гречка (готовая)',      unit:'г',   per:100, k:110, p:4,   c:21,  f:1.1 },
+  { id:'spaghetti', e:'🍝', n:'Спагетти (сухие)',      unit:'г',   per:100, k:355, p:12,  c:71,  f:1.5 },
+  { id:'oats',      e:'🥣', n:'Овсяные хлопья',        unit:'г',   per:100, k:370, p:12,  c:62,  f:7   },
+  { id:'bread',     e:'🍞', n:'Хлеб цельнозерновой',   unit:'г',   per:100, k:250, p:9,   c:45,  f:3.5 },
+  { id:'blini',     e:'🥞', n:'Блинчики',              unit:'шт',  per:1,   k:95,  p:3.5, c:13,  f:3   },
+  { id:'milk',      e:'🥛', n:'Молоко',                unit:'мл',  per:100, k:60,  p:3.2, c:4.7, f:3.2 },
+  { id:'banana',    e:'🍌', n:'Банан',                 unit:'шт',  per:1,   k:105, p:1.3, c:27,  f:0.4 },
+  { id:'honey',     e:'🍯', n:'Мёд / джем',            unit:'г',   per:100, k:304, p:0.3, c:82,  f:0   },
+  { id:'tomato_p',  e:'🥫', n:'Томатная паста',        unit:'г',   per:100, k:82,  p:4.3, c:19,  f:0.5 },
+  { id:'oil',       e:'🫒', n:'Масло растительное',    unit:'г',   per:100, k:884, p:0,   c:0,   f:100 },
+  { id:'veg',       e:'🥒', n:'Овощи (огурец/помидор/морковь)', unit:'г', per:100, k:25, p:1, c:5, f:0.2 },
+  { id:'choco',     e:'🍫', n:'Тёмный шоколад',        unit:'г',   per:100, k:546, p:5,   c:61,  f:31  },
+  { id:'nuts',      e:'🥜', n:'Орехи',                 unit:'г',   per:100, k:607, p:20,  c:20,  f:54  },
+];
+const FOOD_MAP = Object.fromEntries(FOOD_DB.map(f=>[f.id,f]));
 
-let foodTab = FOOD_DAY_KEYS[0];
-let foodShift = 'day'; // day | night | off
-let foodChecked = {}; // ключи галочек за СЕГОДНЯ, грузятся из food_log
+// Что предлагается по умолчанию в новый день (можно удалять/добавлять)
+const FOOD_DEFAULT_IDS = ['egg_fry','chicken','rice','grechka','tvorog','banana','tuna','bread','milk','choco'];
 
-const foodDateKey = () => { const t=T(); return DK(t.y,t.m,t.d); };
+const TRAIN_DOW = [2,4,0]; // вт, чт, вс
 
-// Загрузка отметок за сегодня из Supabase
-async function loadFoodToday() {
-  foodChecked = {};
-  const dk = foodDateKey();
-  const {data} = await sb.from('food_log').select('*').eq('user_id',CU.id).eq('date',dk).maybeSingle();
-  if(data){
-    foodTab = data.day_template || FOOD_DAY_KEYS[0];
-    foodShift = data.shift_type || 'day';
-    foodChecked = data.checked || {};
-  }
+let foodSel = null;          // {y,m,d} выбранный день питания
+let foodMonY, foodMonM;      // отображаемый месяц календаря питания
+let foodDays = {};           // dateKey -> [{id, grams}]
+let foodMonthLoaded = null;  // 'YYYY-MM' которую уже загрузили
+
+const fdk = (y,m,d)=>DK(y,m,d);
+
+async function loadFoodMonth(y,m){
+  const ym=`${y}-${String(m+1).padStart(2,'0')}`;
+  const {data}=await sb.from('food_log').select('*').eq('user_id',CU.id).like('date',ym+'%');
+  (data||[]).forEach(r=>{ foodDays[r.date]=r.items||[]; });
+  foodMonthLoaded=ym;
 }
 
-async function saveFoodToday() {
-  const dk = foodDateKey();
-  const totals = foodTotals();
+async function saveFoodDay(dk){
+  const items=foodDays[dk]||[];
+  const t=calcFoodDay(dk);
   await sb.from('food_log').upsert({
-    user_id:CU.id, date:dk,
-    day_template:foodTab, shift_type:foodShift,
-    checked:foodChecked,
-    kcal:totals.k, protein:totals.p, carbs:totals.c, fat:totals.f
+    user_id:CU.id, date:dk, items,
+    kcal:Math.round(t.k), protein:Math.round(t.p), carbs:Math.round(t.c), fat:Math.round(t.f)
   },{onConflict:'user_id,date'});
 }
 
-function foodTotals() {
+function calcItem(it){
+  const f=FOOD_MAP[it.id]; if(!f) return {k:0,p:0,c:0,f:0};
+  const mult=(it.grams||0)/f.per;
+  return { k:f.k*mult, p:f.p*mult, c:f.c*mult, f:f.f*mult };
+}
+function calcFoodDay(dk){
   let t={k:0,p:0,c:0,f:0};
-  const day=FOOD_DAYS[foodTab];
-  day.meals.forEach(m=>m.items.forEach((it,i)=>{
-    if(foodChecked[`${m.g}|${i}`]){ t.k+=it.k; t.p+=it.p; t.c+=it.c; t.f+=it.f; }
-  }));
+  (foodDays[dk]||[]).forEach(it=>{const r=calcItem(it);t.k+=r.k;t.p+=r.p;t.c+=r.c;t.f+=r.f;});
   return t;
 }
 
-async function toggleFood(key) {
-  foodChecked[key]=!foodChecked[key];
-  await saveFoodToday();
-  renderFood();
-}
+async function renderFood(){
+  const t=T();
+  if(foodMonY===undefined){foodMonY=t.y;foodMonM=t.m;}
+  const ym=`${foodMonY}-${String(foodMonM+1).padStart(2,'0')}`;
+  if(foodMonthLoaded!==ym) await loadFoodMonth(foodMonY,foodMonM);
+  if(!foodSel && foodMonY===t.y && foodMonM===t.m) foodSel={y:t.y,m:t.m,d:t.d};
 
-async function setFoodTab(tab) {
-  foodTab=tab; foodChecked={}; // при смене шаблона отметки сбрасываются
-  await saveFoodToday();
-  renderFood();
-}
-
-async function setFoodShift(sh) {
-  foodShift=sh;
-  await saveFoodToday();
-  renderFood();
-}
-
-async function foodMarkAll() {
-  const day=FOOD_DAYS[foodTab];
-  day.meals.forEach(m=>m.items.forEach((_,i)=>{ foodChecked[`${m.g}|${i}`]=true; }));
-  await saveFoodToday();
-  renderFood();
-}
-
-async function foodClear() {
-  foodChecked={};
-  await saveFoodToday();
-  renderFood();
-}
-
-let foodLoaded=false;
-async function renderFood() {
-  if(!foodLoaded){ await loadFoodToday(); foodLoaded=true; }
-  const day=FOOD_DAYS[foodTab];
-  const t=foodTotals();
-  const pct=(v,g)=>Math.min(100,Math.round(v/g*100));
-  const todayDow=new Date().getDay();
-  const isTrainDay=TRAIN_DAYS.includes(todayDow);
-
-  const tabs=FOOD_DAY_KEYS.map(k=>`<div class="ftab${k===foodTab?' on':''}" onclick="setFoodTab('${k}')">${k}</div>`).join('');
-
-  const shifts=[
-    {k:'day',l:'☀️ Смена 6–18'},
-    {k:'night',l:'🌙 Смена 18–6'},
-    {k:'off',l:'🏠 Выходной'},
-  ].map(s=>`<button class="shift-btn${s.k===foodShift?' on':''}" onclick="setFoodShift('${s.k}')">${s.l}</button>`).join('');
-
-  const meals=day.meals.map(m=>{
-    const items=m.items.map((it,i)=>{
-      const on=!!foodChecked[`${m.g}|${i}`];
-      return `<div class="fitem${on?' on':''}" onclick="toggleFood('${m.g}|${i}')">
-        <div class="fcheck"></div>
-        <div class="femoji">${it.e}</div>
-        <div class="ffood"><div class="fn">${it.n}</div><div class="fsub">${it.s}</div></div>
-        <div class="fmini"><div class="fk">${it.k}</div><div class="fp">Б${it.p} У${it.c} Ж${it.f}</div></div>
-      </div>`;
-    }).join('');
-    return `<div class="meal-block">
-      <div class="meal-h">${m.g} <span class="mt">· ${m.t}</span></div>
-      ${items}
-    </div>`;
-  }).join('');
+  // календарь месяца
+  const first=new Date(foodMonY,foodMonM,1), last=new Date(foodMonY,foodMonM+1,0);
+  const sdow=(first.getDay()+6)%7;
+  let cal='';
+  for(let i=0;i<sdow;i++) cal+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const k=fdk(foodMonY,foodMonM,d);
+    const tt=calcFoodDay(k);
+    const has=(foodDays[k]||[]).length>0;
+    let cls='cal-day';
+    if(foodMonY===t.y&&foodMonM===t.m&&d===t.d) cls+=' today';
+    if(foodSel&&foodSel.y===foodMonY&&foodSel.m===foodMonM&&foodSel.d===d) cls+=' sel';
+    if(has) cls+=' has-work';
+    cal+=`<div class="${cls}" onclick="selFoodDay(${d})">${d}${has?`<div class="dot"></div>`:''}</div>`;
+  }
 
   document.getElementById('food-body').innerHTML=`
     <div class="food-goal">
       <div class="fg-item"><span class="k">Цель</span><span class="v">Форма атлета <small>67→70 кг</small></span></div>
       <div class="fg-item"><span class="k">Норма</span><span class="v">${FOOD_GOAL.kcal} <small>ккал</small></span></div>
       <div class="fg-item"><span class="k">Белок</span><span class="v">${FOOD_GOAL.p} <small>г</small></span></div>
-      ${isTrainDay?`<div class="fg-item"><span class="k">Сегодня</span><span class="v" style="color:var(--accent2)">💪 День зала</span></div>`:''}
     </div>
+    <div class="card">
+      <div class="cal-head">
+        <button class="cal-arr" onclick="chFoodMonth(-1)">‹</button>
+        <div class="cal-month">${MR[foodMonM]} ${foodMonY}</div>
+        <button class="cal-arr" onclick="chFoodMonth(1)">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow">Пн</div><div class="cal-dow">Вт</div><div class="cal-dow">Ср</div>
+        <div class="cal-dow">Чт</div><div class="cal-dow">Пт</div><div class="cal-dow">Сб</div><div class="cal-dow">Вс</div>
+        ${cal}
+      </div>
+      <div class="cal-legend"><span><div class="leg-dot" style="background:var(--green)"></div>Есть записи</span></div>
+    </div>
+    <div id="food-day-panel"></div>
+  `;
+  renderFoodDay();
+}
 
+function selFoodDay(d){ foodSel={y:foodMonY,m:foodMonM,d}; renderFood(); }
+function chFoodMonth(dir){
+  foodMonM+=dir;
+  if(foodMonM<0){foodMonM=11;foodMonY--;} if(foodMonM>11){foodMonM=0;foodMonY++;}
+  foodMonthLoaded=null; renderFood();
+}
+
+function renderFoodDay(){
+  if(!foodSel){document.getElementById('food-day-panel').innerHTML='';return;}
+  const {y,m,d}=foodSel, k=fdk(y,m,d);
+  const wd=['вс','пн','вт','ср','чт','пт','сб'][new Date(y,m,d).getDay()];
+  const items=foodDays[k]||[];
+  const t=calcFoodDay(k);
+  const pct=(v,g)=>Math.min(100,Math.round(v/g*100));
+  const isTrain=TRAIN_DOW.includes(new Date(y,m,d).getDay());
+
+  const rows=items.map((it,i)=>{
+    const f=FOOD_MAP[it.id]; if(!f) return '';
+    const r=calcItem(it);
+    return `<div class="frow${it.grams>0?' used':''}">
+      <div class="femoji">${f.e}</div>
+      <div class="ffood"><div class="fn">${f.n}</div><div class="fsub">${f.k} ккал / ${f.per}${f.unit} · Б${f.p} У${f.c} Ж${f.f}</div></div>
+      <div class="fgram">
+        <input type="number" min="0" step="${f.unit==='шт'?1:10}" value="${it.grams||''}" placeholder="0"
+          oninput="setGrams('${k}',${i},this.value)">
+        <div class="unit">${f.unit}</div>
+      </div>
+      <div class="fkcal${it.grams>0?'':' zero'}"><div class="kk">${Math.round(r.k)}</div></div>
+      <button class="fdel" onclick="delFood('${k}',${i})">✕</button>
+    </div>`;
+  }).join('');
+
+  const opts=FOOD_DB.map(f=>`<option value="${f.id}">${f.e} ${f.n}</option>`).join('');
+
+  document.getElementById('food-day-panel').innerHTML=`
     <div class="food-tracker">
       <div class="ft-top">
-        <div class="ft-cals"><b class="${t.k>=FOOD_GOAL.kcal?'G':''}">${t.k}</b> <span>/ ${FOOD_GOAL.kcal} ккал</span></div>
+        <div class="ft-cals"><b class="${t.k>=FOOD_GOAL.kcal?'G':''}">${Math.round(t.k)}</b> <span>/ ${FOOD_GOAL.kcal} ккал</span></div>
         <span class="tag tag-g">${pct(t.k,FOOD_GOAL.kcal)}%</span>
       </div>
       <div class="ft-macros">
-        <div class="ftm">
-          <div class="bl"><span class="nm">Белки</span><span class="nu">${t.p}/${FOOD_GOAL.p}г</span></div>
-          <div class="prog-bg"><div class="prog-fill" style="background:var(--blue);width:${pct(t.p,FOOD_GOAL.p)}%"></div></div>
-        </div>
-        <div class="ftm">
-          <div class="bl"><span class="nm">Углеводы</span><span class="nu">${t.c}/${FOOD_GOAL.c}г</span></div>
-          <div class="prog-bg"><div class="prog-fill" style="background:var(--yellow);width:${pct(t.c,FOOD_GOAL.c)}%"></div></div>
-        </div>
-        <div class="ftm">
-          <div class="bl"><span class="nm">Жиры</span><span class="nu">${t.f}/${FOOD_GOAL.f}г</span></div>
-          <div class="prog-bg"><div class="prog-fill" style="background:var(--orange);width:${pct(t.f,FOOD_GOAL.f)}%"></div></div>
-        </div>
+        <div class="ftm"><div class="bl"><span class="nm">Белки</span><span class="nu">${Math.round(t.p)}/${FOOD_GOAL.p}г</span></div><div class="prog-bg"><div class="prog-fill" style="background:var(--blue);width:${pct(t.p,FOOD_GOAL.p)}%"></div></div></div>
+        <div class="ftm"><div class="bl"><span class="nm">Углеводы</span><span class="nu">${Math.round(t.c)}/${FOOD_GOAL.c}г</span></div><div class="prog-bg"><div class="prog-fill" style="background:var(--yellow);width:${pct(t.c,FOOD_GOAL.c)}%"></div></div></div>
+        <div class="ftm"><div class="bl"><span class="nm">Жиры</span><span class="nu">${Math.round(t.f)}/${FOOD_GOAL.f}г</span></div><div class="prog-bg"><div class="prog-fill" style="background:var(--orange);width:${pct(t.f,FOOD_GOAL.f)}%"></div></div></div>
       </div>
     </div>
-
-    <div class="shift-row">${shifts}</div>
-    <div class="food-tabs">${tabs}</div>
-
-    ${meals}
-
-    <div style="display:flex;gap:10px;margin-top:6px">
-      <button class="btn btn-full btn-ghost" onclick="foodClear()">Сбросить день</button>
-      <button class="btn btn-full" onclick="foodMarkAll()">Отметить всё</button>
-    </div>
-
-    ${day.cook?`<div class="prep-note">
-      <h4>🍳 Готовка на 3 дня</h4>
-      <p><b>Свари сразу:</b> курицу (6 грудок), рис и гречку большими партиями, разложи по контейнерам — хватит на обед и ужин 3 дня.</p>
-      <p><b>Свежим в день еды:</b> куриный фарш для спагетти и воловые котлеты для бургеров — жарить 10 мин.</p>
-    </div>`:''}
-
-    ${isTrainDay?`<div class="prep-note" style="border-color:rgba(124,106,247,.25);background:linear-gradient(135deg,rgba(124,106,247,.08),rgba(124,106,247,.02))">
-      <h4 style="color:var(--accent2)">💪 День тренировки</h4>
-      <p>Добавь лишнюю порцию риса к обеду — углеводы под нагрузку. После зала не забудь белок (творог или курица).</p>
-    </div>`:''}
-
-    <div style="text-align:center;margin-top:18px;font-size:11px;color:var(--text3);line-height:1.6">
-      Норма 2900 ккал / 140 г белка — лёгкий профицит на набор мышц.<br>
-      Зал: вт / чт / вс. Отметки сохраняются по дате.
+    <div class="day-panel">
+      <div class="dp-title">${d} ${MR[m].toLowerCase()} ${y} · ${wd} ${isTrain?'· 💪 день зала':''}</div>
+      <div class="meal-block">
+        <div class="meal-h">Что съел — впиши граммы / штуки</div>
+        ${rows||'<div style="color:var(--text3);font-size:13px;padding:10px 0">Пусто. Добавь продукты снизу или загрузи типовой день.</div>'}
+        <div class="add-food">
+          <select id="food-add-sel">${opts}</select>
+          <button class="btn btn-sm" onclick="addFood('${k}')">➕ Добавить</button>
+        </div>
+        ${items.length===0?`<button class="btn btn-full btn-ghost" style="margin-top:8px" onclick="loadTypicalDay('${k}')">📋 Загрузить типовой набор</button>`:''}
+      </div>
+      ${isTrain?`<div class="prep-note"><h4>💪 День тренировки</h4><p>Добавь лишнюю порцию риса/гречки — углеводы под нагрузку. После зала закрой белок (курица или творог).</p></div>`:''}
     </div>
   `;
 }
 
+async function setGrams(k,i,val){
+  foodDays[k][i].grams=parseFloat(val)||0;
+  // мгновенно пересчитать без полного ре-рендера тяжёлого списка:
+  clearTimeout(window._foodT);
+  window._foodT=setTimeout(async()=>{ await saveFoodDay(k); renderFood(); },500);
+  // но трекер обновим сразу
+  const t=calcFoodDay(k);
+  renderFoodTrackerLive(t);
+}
+function renderFoodTrackerLive(t){
+  const el=document.querySelector('.ft-cals b'); if(!el)return;
+  el.textContent=Math.round(t.k);
+}
+
+async function addFood(k){
+  const id=document.getElementById('food-add-sel').value;
+  if(!foodDays[k]) foodDays[k]=[];
+  foodDays[k].push({id,grams:0});
+  await saveFoodDay(k); renderFood();
+}
+async function delFood(k,i){
+  foodDays[k].splice(i,1);
+  await saveFoodDay(k); renderFood();
+}
+async function loadTypicalDay(k){
+  foodDays[k]=FOOD_DEFAULT_IDS.map(id=>({id,grams:0}));
+  await saveFoodDay(k); renderFood();
+  toast('Набор загружен — впиши граммы');
+}
+
+// ══ TRAINING / ТРЕНИРОВКИ (месяц, чек-лист, подходы×повторы×вес) ════
+// Три дня по программе. Пользователь может менять всё прямо в дне.
+const TRAIN_TEMPLATES = {
+  A: { name:'День A', sub:'Грудь + трицепс', ex:[
+    { n:'Жим лёжа',                   sets:4, reps:8,  w:40 },
+    { n:'Жим гантелей на наклонной',  sets:3, reps:10, w:16 },
+    { n:'Разводка гантелей',          sets:3, reps:12, w:10 },
+    { n:'Отжимания на брусьях',       sets:3, reps:10, w:0  },
+    { n:'Разгибания на блоке',        sets:3, reps:12, w:20 },
+    { n:'Кардио (беговая, 10 мин)',   sets:1, reps:1,  w:0  },
+  ]},
+  B: { name:'День B', sub:'Спина + бицепс', ex:[
+    { n:'Подтягивания / тяга блока',  sets:4, reps:8,  w:0  },
+    { n:'Тяга штанги в наклоне',      sets:3, reps:10, w:40 },
+    { n:'Тяга горизонт. блока',       sets:3, reps:10, w:45 },
+    { n:'Гиперэкстензия',             sets:3, reps:12, w:0  },
+    { n:'Подъём штанги на бицепс',    sets:3, reps:10, w:20 },
+    { n:'Кардио (гребля, 10 мин)',    sets:1, reps:1,  w:0  },
+  ]},
+  C: { name:'День C', sub:'Ноги + плечи', ex:[
+    { n:'Приседания со штангой',      sets:4, reps:8,  w:50 },
+    { n:'Жим ногами',                 sets:3, reps:10, w:100},
+    { n:'Румынская тяга',             sets:3, reps:10, w:40 },
+    { n:'Выпады с гантелями',         sets:3, reps:10, w:14 },
+    { n:'Жим гантелей сидя',          sets:3, reps:10, w:14 },
+    { n:'Махи гантелями в стороны',   sets:3, reps:12, w:8  },
+  ]},
+};
+
+let trainSel=null, trainMonY, trainMonM, trainMonthLoaded=null;
+let trainDays={}; // dateKey -> {tpl:'A'|'B'|'C', ex:[{n,sets,reps,w,done}]}
+
+async function loadTrainMonth(y,m){
+  const ym=`${y}-${String(m+1).padStart(2,'0')}`;
+  const {data}=await sb.from('training_log').select('*').eq('user_id',CU.id).like('date',ym+'%');
+  (data||[]).forEach(r=>{ trainDays[r.date]={tpl:r.tpl, ex:r.ex||[]}; });
+  trainMonthLoaded=ym;
+}
+async function saveTrainDay(dk){
+  const day=trainDays[dk];
+  const done=(day.ex||[]).filter(e=>e.done).length;
+  await sb.from('training_log').upsert({
+    user_id:CU.id, date:dk, tpl:day.tpl, ex:day.ex,
+    done_count:done, total_count:(day.ex||[]).length
+  },{onConflict:'user_id,date'});
+}
+
+async function renderTraining(){
+  const t=T();
+  if(trainMonY===undefined){trainMonY=t.y;trainMonM=t.m;}
+  const ym=`${trainMonY}-${String(trainMonM+1).padStart(2,'0')}`;
+  if(trainMonthLoaded!==ym) await loadTrainMonth(trainMonY,trainMonM);
+  if(!trainSel && trainMonY===t.y && trainMonM===t.m) trainSel={y:t.y,m:t.m,d:t.d};
+
+  const first=new Date(trainMonY,trainMonM,1), last=new Date(trainMonY,trainMonM+1,0);
+  const sdow=(first.getDay()+6)%7;
+  let cal='';
+  for(let i=0;i<sdow;i++) cal+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const k=DK(trainMonY,trainMonM,d);
+    const has=!!trainDays[k];
+    const isT=TRAIN_DOW.includes(new Date(trainMonY,trainMonM,d).getDay());
+    let cls='cal-day';
+    if(trainMonY===t.y&&trainMonM===t.m&&d===t.d) cls+=' today';
+    if(trainSel&&trainSel.y===trainMonY&&trainSel.m===trainMonM&&trainSel.d===d) cls+=' sel';
+    if(has) cls+=' has-work';
+    cal+=`<div class="${cls}" onclick="selTrainDay(${d})" style="${isT&&!has?'color:var(--accent2)':''}">${d}${has?'<div class="dot"></div>':''}</div>`;
+  }
+
+  document.getElementById('training-body').innerHTML=`
+    <div class="card">
+      <div class="cal-head">
+        <button class="cal-arr" onclick="chTrainMonth(-1)">‹</button>
+        <div class="cal-month">${MR[trainMonM]} ${trainMonY}</div>
+        <button class="cal-arr" onclick="chTrainMonth(1)">›</button>
+      </div>
+      <div class="cal-grid">
+        <div class="cal-dow">Пн</div><div class="cal-dow">Вт</div><div class="cal-dow">Ср</div>
+        <div class="cal-dow">Чт</div><div class="cal-dow">Пт</div><div class="cal-dow">Сб</div><div class="cal-dow">Вс</div>
+        ${cal}
+      </div>
+      <div class="cal-legend">
+        <span><div class="leg-dot" style="background:var(--green)"></div>Тренировка записана</span>
+        <span><div class="leg-dot" style="background:var(--accent2)"></div>Плановый день (вт/чт/вс)</span>
+      </div>
+    </div>
+    <div id="train-day-panel"></div>
+  `;
+  renderTrainDay();
+}
+
+function selTrainDay(d){ trainSel={y:trainMonY,m:trainMonM,d}; renderTraining(); }
+function chTrainMonth(dir){
+  trainMonM+=dir;
+  if(trainMonM<0){trainMonM=11;trainMonY--;} if(trainMonM>11){trainMonM=0;trainMonY++;}
+  trainMonthLoaded=null; renderTraining();
+}
+
+function renderTrainDay(){
+  if(!trainSel){document.getElementById('train-day-panel').innerHTML='';return;}
+  const {y,m,d}=trainSel, k=DK(y,m,d);
+  const wd=['вс','пн','вт','ср','чт','пт','сб'][new Date(y,m,d).getDay()];
+  const day=trainDays[k];
+
+  if(!day){
+    document.getElementById('train-day-panel').innerHTML=`
+      <div class="day-panel">
+        <div class="dp-title">${d} ${MR[m].toLowerCase()} ${y} · ${wd}</div>
+        <div style="color:var(--text2);font-size:13px;margin-bottom:14px">Выбери программу на этот день:</div>
+        <div class="tr-tabs">
+          ${Object.entries(TRAIN_TEMPLATES).map(([key,tpl])=>`
+            <button class="tr-tab" onclick="startTrainDay('${k}','${key}')">${tpl.name}<span class="sub">${tpl.sub}</span></button>
+          `).join('')}
+        </div>
+      </div>`;
+    return;
+  }
+
+  const done=day.ex.filter(e=>e.done).length;
+  const totalVol=day.ex.reduce((s,e)=>s+(e.done?(e.sets*e.reps*e.w):0),0);
+  const tpl=TRAIN_TEMPLATES[day.tpl];
+
+  const exRows=day.ex.map((e,i)=>`
+    <div class="ex${e.done?' done':''}">
+      <div class="ex-top">
+        <div class="ex-check" onclick="toggleEx('${k}',${i})"></div>
+        <div class="ex-name">${e.n}</div>
+        <button class="ex-del" onclick="delEx('${k}',${i})">✕</button>
+      </div>
+      <div class="ex-fields">
+        <div class="ex-f"><label>Подходы</label><input type="number" min="0" value="${e.sets}" oninput="setEx('${k}',${i},'sets',this.value)"></div>
+        <div class="ex-f"><label>Повторы</label><input type="number" min="0" value="${e.reps}" oninput="setEx('${k}',${i},'reps',this.value)"></div>
+        <div class="ex-f"><label>Вес, кг</label><input type="number" min="0" step="0.5" value="${e.w}" oninput="setEx('${k}',${i},'w',this.value)"></div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('train-day-panel').innerHTML=`
+    <div class="tr-summary">
+      <div class="trs-item"><span class="k">Программа</span><span class="v">${tpl?tpl.name:day.tpl} <span style="font-size:12px;color:var(--text2)">${tpl?tpl.sub:''}</span></span></div>
+      <div class="trs-item"><span class="k">Выполнено</span><span class="v ${done===day.ex.length?'G':''}">${done}/${day.ex.length}</span></div>
+      <div class="trs-item"><span class="k">Объём (сет·повт·кг)</span><span class="v B">${N(totalVol)}</span></div>
+    </div>
+    <div class="day-panel">
+      <div class="dp-title">${d} ${MR[m].toLowerCase()} ${y} · ${wd}</div>
+      ${exRows}
+      <div class="add-food" style="margin-top:12px">
+        <input type="text" id="ex-add-name" class="inp" placeholder="Добавить упражнение...">
+        <button class="btn btn-sm" onclick="addEx('${k}')">➕</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:12px">
+        <button class="btn btn-full btn-ghost" onclick="switchTrainTpl('${k}')">🔄 Сменить программу</button>
+        <button class="btn btn-full btn-red" onclick="clearTrainDay('${k}')">🗑 Очистить день</button>
+      </div>
+    </div>`;
+}
+
+async function startTrainDay(k,tplKey){
+  const tpl=TRAIN_TEMPLATES[tplKey];
+  trainDays[k]={tpl:tplKey, ex:tpl.ex.map(e=>({...e,done:false}))};
+  await saveTrainDay(k); renderTraining();
+}
+async function toggleEx(k,i){
+  trainDays[k].ex[i].done=!trainDays[k].ex[i].done;
+  await saveTrainDay(k); renderTraining();
+}
+async function setEx(k,i,field,val){
+  trainDays[k].ex[i][field]=parseFloat(val)||0;
+  clearTimeout(window._trainT);
+  window._trainT=setTimeout(()=>saveTrainDay(k),500);
+}
+async function addEx(k){
+  const name=document.getElementById('ex-add-name').value.trim();
+  if(!name){toast('Впиши название');return;}
+  trainDays[k].ex.push({n:name,sets:3,reps:10,w:0,done:false});
+  await saveTrainDay(k); renderTraining();
+}
+async function delEx(k,i){
+  trainDays[k].ex.splice(i,1);
+  await saveTrainDay(k); renderTraining();
+}
+function switchTrainTpl(k){
+  trainSel=trainSel; // оставить день
+  delete trainDays[k];
+  sb.from('training_log').delete().eq('user_id',CU.id).eq('date',k);
+  renderTraining();
+}
+async function clearTrainDay(k){
+  delete trainDays[k];
+  await sb.from('training_log').delete().eq('user_id',CU.id).eq('date',k);
+  renderTraining();
+  toast('День очищен');
+}
 // ── SETTINGS ───────────────────────────────────────────────────────
 async function renderSettings() {
   const ws=await getWS(), ps=await getPS(), sv=await getSV();
